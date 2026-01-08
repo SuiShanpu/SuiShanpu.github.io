@@ -5,7 +5,16 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: () => import("@/views/Home.vue"),
+      component: () => import("@/views/home/Home.vue"),
+    },
+    {
+      path: "/tools",
+      children: [
+        {
+          path: "regular",
+          component: () => import("@/views/tools/RegularParse.vue"),
+        },
+      ]
     }
   ],
 })

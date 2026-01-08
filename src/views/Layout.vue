@@ -1,6 +1,10 @@
 <script setup>
 import { ref } from 'vue';
 import dayjs from 'dayjs';
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute();
+const router = useRouter();
 
 const DAYJS_FORMAT_TIME = "YYYY-MM-DD HH:mm:ss";
 
@@ -17,12 +21,21 @@ const dateNow = ref(dayjs().format(DAYJS_FORMAT_TIME));
 setInterval(() => {
   dateNow.value = dayjs().format(DAYJS_FORMAT_TIME);
 }, 1000)
+
+
+/**
+ * 返回首页
+ */
+function backHome() {
+  router.push("/");
+}
 </script>
 
 <template>
   <div class="sp-layout">
     <nav class="nav">
       <div class="common">
+        <HomeFilled  @click="backHome"/>
         {{ dateNow }}
       </div>
       <div class="profile">
@@ -31,19 +44,15 @@ setInterval(() => {
       </div>
     </nav>
     <div class="content">
-      <aside class="aside"></aside>
-      <main class="main">
-        <router-view v-slot="{ Component }">
-          <component :is="Component" />
-        </router-view>
-      </main>
+      <router-view v-slot="{ Component }">
+        <component :is="Component" />
+      </router-view>
     </div>
   </div>
 </template>
 
 <style lang="less" scoped>
 @navHeight: 60px;
-@sideWidth: 240px;
 
 .sp-layout {
   height: 100%;
@@ -54,7 +63,7 @@ setInterval(() => {
     width: 100%;
     // background-color: #4b5168;
     background-color: #7bcda8;
-    padding: 24px;
+    padding: 0 24px;
 
     display: flex;
     flex-direction: row;
@@ -84,20 +93,8 @@ setInterval(() => {
     }
   }
   .content {
+    width: 100%;
     height: calc(100% - @navHeight);
-    display: flex;
-    flex-direction: row;
-    text-align: start;
   }
-  .aside {
-    width: @sideWidth;
-    height: 100%;
-    background-color: #eef9f4;
-  }
-  .main {
-    width: calc(100% - @sideWidth);
-    height: 100%;
-  }
-
 }
 </style>
