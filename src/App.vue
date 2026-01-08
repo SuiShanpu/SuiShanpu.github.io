@@ -1,10 +1,9 @@
 <script setup>
+  import Layout from "./views/Layout.vue";
 </script>
 
 <template>
-  <router-view v-slot="{ Component }">
-    <component :is="Component" />
-  </router-view>
+  <Layout></Layout>
 </template>
 
 <style scoped>
