@@ -1,7 +1,7 @@
 <!--
   创建时间: 2026-01-07 17:37:25
   作者: Shanpu
-  功能: Home
+  功能: Home 首页面
 -->
 
 <script setup>
@@ -56,7 +56,6 @@ const tools_list = [
   height: 100%;
   display: flex;
   flex-direction: row;
-  text-align: start;
 
   .aside {
     width: @sideWidth;

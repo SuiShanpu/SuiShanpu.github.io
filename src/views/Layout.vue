@@ -86,8 +86,8 @@ function backHome() {
       font-family: "隶书", "楷书";
     }
     .logo {
-      width: 50px;
-      height: 50px;
+      width: 44px;
+      height: 44px;
       background-color: #fff;
       border-radius: 25%;
     }
