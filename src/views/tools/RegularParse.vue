@@ -9,7 +9,9 @@ import { ref } from 'vue';
 
 import ParseResultRender from "./ParseResultRender.vue";
 
-const regExp = ref(null);
+import { DESC_TIPS, parseRegular } from "@/utils/regular.js";
+
+const regExp = ref("^[A-Z]+?(0-9{1,}(abc))?$");
 
 const parseRes = ref([
   { expr: "^", explain: "表达式的开头", tip: "dfdf" },
@@ -59,6 +61,16 @@ const descData = ref([
     {expr: "|", desc: '用于指定多个模式的选择。'},
   ] },
 ])
+
+
+/**
+ * 解析正则表达式
+ */
+function onParse() {
+  let regRes = parseRegular(regExp.value);
+  parseRes.value = regRes;
+  console.log("regRes:", regRes);
+}
 </script> 
 
 <template>
@@ -67,7 +79,7 @@ const descData = ref([
       <div class="regular">
         <p class="title">正则表达式</p>
         <div class="regular-expression">
-          <div class="btn">Parse</div>
+          <div class="btn" @click="onParse">Parse</div>
           <div class="prefix">/</div>
           <div class="exp-body">
             <a-input v-model:value="regExp" :bordered="false" placeholder="请输入正则表达式" />
@@ -84,7 +96,7 @@ const descData = ref([
       <div class="meta">
         <p class="title">元字符说明</p>
         <div class="meta-desc">
-          <div v-for="list in descData" class="list-box">
+          <div v-for="list in DESC_TIPS" class="list-box">
             <div class="title">{{ list.title }}</div>
             <ul>
               <li v-for="item in list.items">
@@ -141,13 +153,16 @@ const descData = ref([
     height: 40px;
     line-height: 28px;
     padding: 6px 8px;
-    border-right: 1px solid rgba(4,149,39, .4);
+    // border-right: 1px solid rgba(4,149,39, .4);
+    border-right: 1px solid #d2d2d2;
     cursor: pointer;
+    font-weight: 600;
     color: #049527;
     background-color: #d9ecdd;
   }
   .btn:hover {
-    font-weight: 600;
+    color: #fff;
+    background-color: #7bcda8;
   }
 
   .exp-body {
