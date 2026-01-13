@@ -30,7 +30,7 @@ function onToggle(idx) {
   <div class="result-box">
     <div v-for="(item, idx) in resultData" :key="idx">
       <div class="header">
-        <span :class="['down', {'right': item.collapse}]" v-show="item.child" @click="onToggle(idx)" ><CaretDownFilled /></span>
+        <span :class="['down', {'right': item.collapse}]"><CaretDownFilled v-show="item.child"  @click="onToggle(idx)"/></span>
         <span class="expr">{{ item.expr }}</span>
         <span class="explain">{{ item.explain }}</span>
         <span v-show="item.tip">
