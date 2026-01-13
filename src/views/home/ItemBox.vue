@@ -64,6 +64,12 @@ function onClick() {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    img {
+      width: 32px;
+      height: 32px;
+      border-radius: 25%;
+    }
   }
   .name {
     flex-grow: 1;

@@ -28,6 +28,7 @@ function onToggle(idx) {
 
 <template>
   <div class="result-box">
+    <div class="no-data" v-show="!resultData.length">解析结果会在这里展示。</div>
     <div v-for="(item, idx) in resultData" :key="idx">
       <div class="header">
         <span :class="['down', {'right': item.collapse}]"><CaretDownFilled v-show="item.child"  @click="onToggle(idx)"/></span>
@@ -75,5 +76,10 @@ function onToggle(idx) {
   .explain {
     margin: 0 8px;
   }
+}
+
+.no-data {
+  margin-top: 20px;
+  color: #a5a5a5;
 }
 </style>

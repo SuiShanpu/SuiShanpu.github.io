@@ -11,7 +11,7 @@ import ParseResultRender from "./ParseResultRender.vue";
 
 import { DESC_TIPS, parseRegular } from "@/utils/regular.js";
 
-const regExp = ref("^[zyz]+?123([A-Z]+?)(0-9{1,}(abc)?).com$");
+const regExp = ref(null);
 
 const parseRes = ref([]);
 
@@ -20,6 +20,8 @@ const parseRes = ref([]);
  */
 function onParse() {
   console.log("Input regExp:", regExp.value);
+  if (!regExp.value) return;
+
   let regRes = parseRegular(regExp.value);
   parseRes.value = regRes;
   console.log("regRes:", regRes);

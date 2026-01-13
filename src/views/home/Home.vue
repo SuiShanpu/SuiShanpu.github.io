@@ -5,28 +5,20 @@
 -->
 
 <script setup>
+import shanpuImg from '@/assets/shanpu-logo.png';
+import regexpImg from '@/assets/regexp.png';
 
 import ItemBox from "./ItemBox.vue";
 
 
 const studys_list = [
-  {name: "常用汉字 3000 字，分类总结", iconSrc: ""},
-  {name: "Other 00", iconSrc: ""},
-  {name: "Other 01", iconSrc: ""},
-  {name: "Other 02", iconSrc: ""},
-  {name: "Other 03", iconSrc: ""},
-  {name: "Other 04", iconSrc: ""},
-  {name: "Other 05", iconSrc: ""},
+  // {name: "常用汉字 3000 字，分类总结", iconSrc: shanpuImg},
+  {name: "稀土掘金文章", iconSrc: shanpuImg, linkUrl: "https://juejin.cn/user/2089515413410056/posts"},
 ];
 
 const tools_list = [
-  {name: "RGBA转为RGB", iconSrc: "", linkUrl: "https://codepen.io/SuiShanpu/pen/JoKGNvV"},
-  {name: "正则解析器", iconSrc: "", routerPath: "/tools/regular"},
-  {name: "Other 01", iconSrc: ""},
-  {name: "Other 02", iconSrc: ""},
-  {name: "Other 03", iconSrc: ""},
-  {name: "Other 04", iconSrc: ""},
-  {name: "Other 05", iconSrc: ""},
+  {name: "RGBA转为RGB", iconSrc: shanpuImg, linkUrl: "https://codepen.io/SuiShanpu/pen/JoKGNvV"},
+  {name: "正则解析器", iconSrc: regexpImg, routerPath: "/tools/regular"},
 ];
 </script> 
 
