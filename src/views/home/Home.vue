@@ -5,20 +5,22 @@
 -->
 
 <script setup>
-import shanpuImg from '@/assets/shanpu-logo.png';
+import githubImg from '@/assets/github.png';
+import juejinImg from '@/assets/juejin.png';
 import regexpImg from '@/assets/regexp.png';
+import colorNoSAlphaImg from '@/assets/color-no-alpha.png';
 
 import ItemBox from "./ItemBox.vue";
 
 
 const studys_list = [
   // {name: "常用汉字 3000 字，分类总结", iconSrc: shanpuImg},
-  {name: "稀土掘金文章", iconSrc: shanpuImg, linkUrl: "https://juejin.cn/user/2089515413410056/posts"},
+  {name: "Github主页", iconSrc: githubImg, linkUrl: "https://github.com/dashboard"},
+  {name: "稀土掘金文章", iconSrc: juejinImg, linkUrl: "https://juejin.cn/user/2089515413410056/posts"},
 ];
 
 const tools_list = [
-  {name: "RGBA转为RGB", iconSrc: shanpuImg, linkUrl: "https://codepen.io/SuiShanpu/pen/JoKGNvV"},
-  {name: "色值转换", iconSrc: shanpuImg, routerPath: "/tools/colortrans"},
+  {name: "色值转换", iconSrc: colorNoSAlphaImg, routerPath: "/tools/colortrans"},
   {name: "正则解析器", iconSrc: regexpImg, routerPath: "/tools/regular"},
 ];
 </script> 
