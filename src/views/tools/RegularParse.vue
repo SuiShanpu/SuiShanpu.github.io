@@ -37,7 +37,12 @@ function onParse() {
           <div class="btn" @click="onParse">Parse</div>
           <div class="prefix">/</div>
           <div class="exp-body">
-            <a-input v-model:value="regExp" :bordered="false" placeholder="请输入正则表达式" />
+            <a-input 
+              v-model:value="regExp" 
+              :bordered="false" 
+              placeholder="请输入正则表达式" 
+              @pressEnter="onParse"
+            />
           </div>
           <div class="suffix">/g</div>
         </div>
@@ -110,9 +115,14 @@ function onParse() {
   display: flex;
   align-items: center;
 
-  .prefix, .suffix {
+  .prefix {
     font-weight: 700;
-    padding: 6px 8px;
+    padding: 6px 0 6px 16px;
+    color: #808080;
+  }
+  .suffix {
+    font-weight: 700;
+    padding: 6px 16px 6px 0;
     color: #808080;
   }
   .btn {
@@ -136,6 +146,7 @@ function onParse() {
 
     .ant-input {
       font-family: unset;
+      padding: 4px 2px;
     }
   }
 }

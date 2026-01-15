@@ -173,7 +173,8 @@ export const DESC_TIPS = [
  * 
  * 运算符优先级
  * 
- * --  转义符 \
+ * --  转义符 \ 
+ *     需转义的有：^ $ ( ) [ ] { } * + ? | \ < > .
  * --  圆括号和方括号 (), (?:), (?=), [ ]
  * --  限定符（量词）*, +, ?, {n}, {n,}, {n,m}
  * --  任何元字符、任何字符 ^, $, \w
@@ -496,7 +497,7 @@ function getDescCurly(content) {
         ? `${nums[0]}次到${nums[1]}次` 
         : `至少${nums[0]}次`;
   } else {
-    return text = "仅" + content + "次"; 
+    return "仅" + content + "次"; 
   }
 }
 
