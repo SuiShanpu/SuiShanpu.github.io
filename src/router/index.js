@@ -14,6 +14,10 @@ const router = createRouter({
           path: "regular",
           component: () => import("@/views/tools/RegularParse.vue"),
         },
+        {
+          path: "colortrans",
+          component: () => import("@/views/tools/ColorTransform.vue"),
+        },
       ]
     }
   ],
