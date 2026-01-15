@@ -18,6 +18,7 @@ const studys_list = [
 
 const tools_list = [
   {name: "RGBA转为RGB", iconSrc: shanpuImg, linkUrl: "https://codepen.io/SuiShanpu/pen/JoKGNvV"},
+  {name: "色值转换", iconSrc: shanpuImg, routerPath: "/tools/colortrans"},
   {name: "正则解析器", iconSrc: regexpImg, routerPath: "/tools/regular"},
 ];
 </script> 
@@ -41,7 +42,8 @@ const tools_list = [
 </template>
 
 <style lang='less' scoped>
-@sideWidth: 240px;
+// @sideWidth: 240px;
+@sideWidth: 0px;
 
 .home {
   width: 100%;

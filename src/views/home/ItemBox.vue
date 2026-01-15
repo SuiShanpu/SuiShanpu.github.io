@@ -46,6 +46,7 @@ function onClick() {
 
 <style lang='less' scoped>
 .home-item-box {
+  min-width: 120px;
   width: calc(25% - 12px);
   height: 50px;
   margin: 6px;
