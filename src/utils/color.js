@@ -42,11 +42,12 @@ export function objToRgba(colorObj) {
 export function hexToObj(hexStr) {
   const numStr = hexStr.replace("#", "");
   const numStArr = [];
-  if (numStr.length == 3) {
+  if (numStr.length == 3 || numStr.length == 4) {
     numStArr.push(
       numStr[0] + numStr[0],
       numStr[1] + numStr[1],
       numStr[2] + numStr[2],
+      numStr[3] + numStr[3],
     )
   } else {
     numStArr.push(
@@ -161,6 +162,7 @@ export function correctHex(inputVal) {
   
   // 补全至合规的位数 (用最后一位补全)
   if (corrNumStr.length <= 3) corrNumStr = corrNumStr.padEnd(3, corrNumStr.at(-1));
+  if (corrNumStr.length == 4) corrNumStr = corrNumStr.padEnd(4, corrNumStr.at(-1));
   else if (corrNumStr.length <= 6) corrNumStr = corrNumStr.padEnd(6, corrNumStr.at(-1));
   else if (corrNumStr.length <= 8) corrNumStr = corrNumStr.padEnd(8, corrNumStr.at(-1));
   
