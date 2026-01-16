@@ -182,30 +182,30 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
     font-size: 18px;
     font-weight: bold;
   }
-  .wrap {
-    margin: 24px;
-    border-top: 1px solid #444857;
+}
 
-    .box {
-      width: 100%;
-      height: 200px;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: start;
-      column-gap: 12px;
-      border: 1px solid #444857;
-      border-top: none;
-    }
+.wrap {
+  margin: 24px;
+  border-top: 1px solid #444857;
+
+  .box {
+    width: 100%;
+    height: 200px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: start;
+    border: 1px solid #444857;
+    border-top: none;
   }
 }
 
 // 数据
 .values {
-  flex: 0 0 450px;
+  flex: 0 0 360px;
   height: 100%;
   background-color: #fff;
-  padding: 24px 0 24px 12px;
+  padding: 24px 12px;
 
   display: flex;
   flex-direction: column;
@@ -237,12 +237,11 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
 // 视图
 .views {
   flex-grow: 1;
-  display: flex;
-  width: calc(100% - 450px);
   height: 100%;
   padding: 24px;
   background-color: v-bind(bgColorText);
   border-left: 1px solid #444857;
+  display: flex;
   .color {
     width: 100%;
     height: 100%;
@@ -252,6 +251,32 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
   }
   .res.color {
     background-color: v-bind(resColorHexText);
+  }
+}
+
+// 小尺寸的样式
+@media screen and (max-width: 650px) {
+  .color-trans {
+    padding: 16px;
+  }
+  .wrap {
+    margin: 16px;
+
+    .box {
+      flex-direction: column;
+      height: auto;
+    }
+
+    .values {
+      flex: 0 0 auto;
+      width: 100%;
+    }
+    .views {
+      flex: 0 0 150px;
+      border-left: none;
+      border-top: 1px solid #444857;
+      width: 100%;
+    }
   }
 }
 </style>
