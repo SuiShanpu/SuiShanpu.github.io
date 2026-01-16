@@ -113,39 +113,41 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
 
 <template>
   <div class="color-trans">
-    <div class="to-rgb">
-      <div class="title">转换为无透明度</div>
-      <div class="wrap">
-        <div class="box">
-          <div class="values">
-            <div class="orig value">
-              <span>原色值: </span>
-              <ColorPicker :color-source="origColorData" @change="onChangeOrig"/>
-            </div>
-            <div class="bg value">
-              <span>背景色: </span>
-              <ColorPicker :color-source="bgColorData" @change="onChangeBg"/>
-            </div>
-          </div>
-          <div class="views">
-            <div class="orig color"></div>
-          </div>
-        </div>
-        <div class="box">
-          <div class="values">
-            <div class="res btn">
-              <a-button type="primary" @click="onTrans">转换</a-button>
-            </div>
-            <div class="res value">
-              <span>结果色值: </span>
-              <div class="texts">
-                <div class="rgba">{{ resColorRgbaText }}</div>
-                <div class="hex">{{ resColorHexText }}</div>
+    <div class="main">
+      <div class="to-rgb">
+        <div class="title">转换为无透明度</div>
+        <div class="wrap">
+          <div class="box">
+            <div class="values">
+              <div class="orig value">
+                <span>原色值: </span>
+                <ColorPicker :color-source="origColorData" @change="onChangeOrig"/>
+              </div>
+              <div class="bg value">
+                <span>背景色: </span>
+                <ColorPicker :color-source="bgColorData" @change="onChangeBg"/>
               </div>
             </div>
+            <div class="views">
+              <div class="orig color"></div>
+            </div>
           </div>
-          <div class="views">
-            <div class="res color"></div>
+          <div class="box">
+            <div class="values">
+              <div class="res btn">
+                <a-button type="primary" @click="onTrans">转换</a-button>
+              </div>
+              <div class="res value">
+                <span>结果色值: </span>
+                <div class="texts">
+                  <div class="rgba">{{ resColorRgbaText }}</div>
+                  <div class="hex">{{ resColorHexText }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="views">
+              <div class="res color"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -157,19 +159,20 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
 .color-trans {
   width: 100%;
   height: 100%;
-  padding: 24px;
 
-  display: flex;
-  flex-direction: column;
-
-  > div:not(:first-child) {
-    margin-top: 24px;
+  .main {
+    padding: var(--size-page-space);
+    display: flex;
+    flex-direction: column;
+  
+    > div:not(:first-child) {
+      margin-top: var(--size-page-space);
+    }
   }
 }
 
 // 内容区
 .to-rgb {
-  overflow-y: auto;
   background-color: #fff;
   border-radius: 5px;
 
@@ -185,7 +188,7 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
 }
 
 .wrap {
-  margin: 24px;
+  margin: var(--size-page-space);
   border-top: 1px solid #444857;
 
   .box {
@@ -209,7 +212,7 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
 
   display: flex;
   flex-direction: column;
-  row-gap: 8px;
+  row-gap: var(--size-box-gap);
   text-align: start;
 
   .value {
@@ -217,7 +220,7 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    column-gap: 4px;
+    column-gap: var(--size-box-gap);
   }
 
   .res.value {
@@ -228,7 +231,7 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
       display: flex;
       flex-direction: column;
       align-items: start;
-      row-gap: 4px;
+      row-gap: var(--size-box-gap);
     }
   } 
 }
@@ -256,12 +259,7 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
 
 // 小尺寸的样式
 @media screen and (max-width: 650px) {
-  .color-trans {
-    padding: 16px;
-  }
   .wrap {
-    margin: 16px;
-
     .box {
       flex-direction: column;
       height: auto;
@@ -270,6 +268,7 @@ function transformColorValues(origVal, alpha, bgVal = 255) {
     .values {
       flex: 0 0 auto;
       width: 100%;
+      padding: 12px 24px;
     }
     .views {
       flex: 0 0 150px;

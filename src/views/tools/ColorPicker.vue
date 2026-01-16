@@ -186,7 +186,7 @@ function onBlurHex(event) {
   .wrap {
     display: flex;
     align-items: center;
-    column-gap: 8px;
+    column-gap: var(--size-box-gap);
 
     .title {
       width: 48px;
@@ -196,7 +196,7 @@ function onBlurHex(event) {
     .values {
       display: flex;
       align-items: center;
-      column-gap: 8px;
+      column-gap: var(--size-box-gap);
     }
   }
 
@@ -229,6 +229,6 @@ function onBlurHex(event) {
   width: 40px;
 }
 .hex.wrap .ant-input {
-  width: 184px;
+  width: calc(160px + var(--size-box-gap) * 3);
 }
 </style>

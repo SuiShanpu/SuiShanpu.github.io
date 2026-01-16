@@ -61,11 +61,11 @@ const tools_list = [
   .main {
     width: calc(100% - @sideWidth);
     height: 100%;
-    padding: 24px;
+    padding: var(--size-page-space);
 
     display: flex;
     flex-direction: column;
-    row-gap: 24px;
+    row-gap: var(--size-page-space);
   }
 }
 

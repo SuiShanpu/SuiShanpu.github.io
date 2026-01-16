@@ -36,7 +36,7 @@ function backHome() {
     <nav class="nav">
       <div class="common">
         <HomeFilled  @click="backHome"/>
-        {{ dateNow }}
+        <span>{{ dateNow }}</span>
       </div>
       <div class="profile">
         <span class="name">山璞</span>
@@ -63,27 +63,22 @@ function backHome() {
     width: 100%;
     // background-color: #4b5168;
     background-color: #7bcda8;
-    padding: 0 24px;
+    padding: 0 var(--size-page-space);
 
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
 
-    .common {
+    > div {
       font-size: 18px;
       font-weight: 500;
-    }
-    .profile {
+      color: #fff;
+      font-family: "隶书", "楷书";
+
       display: flex;
       align-items: center;
-      column-gap: 8px;
-    }
-    .name {
-      color: #fff;
-      font-size: 18px;
-      font-weight: 500;
-      font-family: "隶书", "楷书";
+      column-gap: var(--size-box-gap);
     }
     .logo {
       width: 44px;
@@ -95,6 +90,7 @@ function backHome() {
   .content {
     width: 100%;
     height: calc(100% - @navHeight);
+    overflow-y: auto;
   }
 }
 </style>

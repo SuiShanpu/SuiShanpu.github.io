@@ -57,7 +57,7 @@ function onClick() {
 
   display: flex;
   align-items: center;
-  column-gap: 8px;
+  column-gap: var(--size-box-gap);
 
   .icon {
     flex: 0 0 40px;

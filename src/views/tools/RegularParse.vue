@@ -83,12 +83,12 @@ function onParse() {
   height: 100%;
 
   .main {
-    padding: 24px;
+    padding: var(--size-page-space);
     display: flex;
     flex-direction: column;
 
     > div:not(:first-child) {
-      margin-top: 24px;
+      margin-top: var(--size-page-space);
     }
   }
 

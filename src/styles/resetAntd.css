@@ -1,0 +1,9 @@
+
+/******--------------- 卡片 Cards ---------------******/
+
+.ant-card .ant-card-head {
+  padding: 0 var(--size-page-space);
+}
+.ant-card .ant-card-body {
+  padding: var(--size-page-space);
+}
