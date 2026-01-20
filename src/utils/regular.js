@@ -56,23 +56,23 @@ const CHARS_ENUM = {
   },
   // 集合中任意一个
   "[]": {
-    key: "char_bracket_any", 
+    key: "char_bracket_range", 
     str: "[", 
     reg: /\[/, 
     explain: "匹配 [ ] 中的任意一个字符", 
     tip: "匹配 [ ] 中的任意一个字符。" 
   },
   "[": {
-    key: "char_bracket_any_start", 
+    key: "char_bracket_range_start", 
     str: "[", 
     reg: /\[/, 
     explain: "字符集的开始", 
     tip: "字符集的开始。" 
   },
   "]": {
-    key: "char_bracket_any_end", 
-    str: "[", 
-    reg: /\[/, 
+    key: "char_bracket_range_end", 
+    str: "]", 
+    reg: /\]/, 
     explain: "字符集的结束", 
     tip: "字符集的结束。" 
   },
@@ -128,9 +128,9 @@ const CHARS_ENUM = {
 export const DESC_TIPS = [
   {title: "字符", items: [
     {expr: "普通字符", explain: '普通字符按照字面意义进行匹配，例如匹配字母 "a" 将匹配到文本中的 "a" 字符。' },
-    {expr: "元字符", explain: '元字符具有特殊的含义，例如 \d 匹配任意数字字符，\w 匹配任意字母数字字符，. 匹配任意字符（除了换行符）等。' },
+    {expr: "特殊字符", explain: '特殊字符具有特殊的含义，例如 \\d 匹配任意数字字符，\\w 匹配任意字母数字字符，. 匹配任意字符（除了换行符）等。' },
   ] },
-  {title: "位置和边界", items: [
+  {title: "位置和边界 Anchors", items: [
     {expr: "^", explain: '默认情况下匹配整个字符串的开头，多行模式下匹配每行的开头。'},
     {expr: "$", explain: '默认情况下匹配整个字符串的结尾，多行模式下匹配每行的结尾。'},
     {expr: "\\b", explain: '匹配单词边界。'},
@@ -138,15 +138,15 @@ export const DESC_TIPS = [
     {expr: "\\A", explain: '匹配字符串开头（不同于^，不受多行模式影响）。'},
     {expr: "\\Z", explain: '匹配字符串结尾或结尾的换行符之前。'},
   ] },
-  {title: "分组和捕获", items: [
-    {expr: "( )", explain: '用于分组和捕获子表达式。'},
-    {expr: "(?: )", explain: '用于分组但不捕获子表达式。'},
+  {title: "分组和捕获 Groups", items: [
+    {expr: "( )", explain: '用于分组和捕获子表达式,匹配并记住匹配子表达式。'},
+    {expr: "(?: )", explain: '用于分组但不捕获子表达式,匹配但不记住匹配子表达式。'},
   ] },
-  {title: "字符集", items: [
+  {title: "字符集 Ranges", items: [
     {expr: "[ ]", explain: '匹配括号内的任意一个字符。例如，[abc] 匹配字符 "a"、"b" 或 "c"。'},
     {expr: "[^ ]", explain: '匹配除了括号内的字符以外的任意一个字符。例如，[^abc] 匹配除了字符 "a"、"b" 或 "c" 以外的任意字符。'},
   ] },
-  {title: "量词", items: [
+  {title: "量词 Quanti­fiers", items: [
     {expr: "{n}", explain: '匹配前面的模式恰好 n 次。'},
     {expr: "{n,}", explain: '匹配前面的模式至少 n 次。'},
     {expr: "{n,m}", explain: '匹配前面的模式至少 n 次且不超过 m 次。'},
@@ -157,14 +157,27 @@ export const DESC_TIPS = [
     {expr: "+?", explain: '匹配前面的模式一次或多次。(非贪婪模式，尽可能少地匹配)'},
     {expr: "??", explain: '匹配前面的模式零次或一次。(非贪婪模式，尽可能少地匹配)'},
   ] },
-  {title: "特殊字符", items: [
+  {title: "转义字符集 Escape Ranges", items: [
+    {expr: "\\d", explain: '匹配所有数字；相当于 [0-9]'},
+    {expr: "\\D", explain: '匹配非数字；相当于 [^0-9]'},
+    {expr: "\\w", explain: '匹配所有字母、所有数字、下划线；相当于 [A-Za-z0-9_]。'},
+    {expr: "\\W", explain: '匹配非字母、数字、下划线；相当于 [^A-Za-z0-9_]。'},
+    {expr: "\\s", explain: '匹配空白符、换行符。'},
+    {expr: "\\D", explain: '匹配非空白符、换行符。'},
+  ] },
+  {title: "元字符 Meta Characters", items: [
     {expr: "\\", explain: '转义字符，用于匹配特殊字符本身。'},
     {expr: ".", explain: '匹配任意字符（除了换行符）。'},
     {expr: "|", explain: '用于指定多个模式的选择。'},
   ] },
+  {title: "特殊字符 Special Characters", items: [
+    {expr: "\\n", explain: '匹配换行符。'},
+    {expr: "\\t", explain: '匹配制表符。'},
+    {expr: "\\r", explain: '匹配回车符。'},
+    {expr: "\\f", explain: '匹配换页符。'},
+    {expr: "\\v", explain: '匹配垂直制表符。'},
+  ] },
 ];
-
-
 
 
 
@@ -184,43 +197,79 @@ export const DESC_TIPS = [
  * @returns {Array} 正则表达式解析后的数据
  */
 
-// [
-//   { expr: "^", explain: "表达式的开头", tip: "dfdf" },
-//   { expr: "[+-]?\d+(\.\d+)", explain: "匹配括号内的任意一个字符零次或一次", child: [
-//     { expr: "[", explain: "字符集的开头", tip: "234" },
-//     { expr: "+-", explain: "字符集的内容", child: [
-//       { expr: "+", explain: "普通字符", tip: "234" },
-//       { expr: "-", explain: "普通字符", tip: "234" },
-//     ] },
-//     { expr: "]", explain: "字符集的结尾", tip: "he" },
-//     { expr: "?", explain: "匹配括号内字符的数量,匹配零次或一次", tip: "33" },
-//   ] },
-//   { expr: "$", explain: "表达式的结尾", tip: "g32523" },
-// ]
 
+export const mockData = [
+  { expr: "^", type: "", content: "", explain: "表达式的开头", tip: "dfdf" },
+  { expr: "[+-]?\d+(\.\d+)", explain: "匹配括号内的任意一个字符零次或一次", expand: true, children: [
+    { expr: "[", explain: "字符集的开头", tip: "234" },
+    { expr: "+-", explain: "字符集的内容", expand: true, children: [
+      { expr: "+", explain: "普通字符", tip: "234" },
+      { expr: "-", explain: "普通字符", tip: "234" },
+    ] },
+    { expr: "]", explain: "字符集的结尾", tip: "he" },
+    { expr: "?", explain: "匹配括号内字符的数量,匹配零次或一次", tip: "33" },
+  ] },
+  { expr: "$", explain: "表达式的结尾", tip: "g32523" },
+]
+
+
+export const mockDataCTree = {
+          'id': '1',
+          'expr': 'Lao Lao',
+          'title': 'general manager',
+          'children': [
+            { 'id': '2', 'expr': 'Bo Miao', 'title': 'department manager' },
+            { 'id': '3', 'expr': 'Su Miao', 'title': 'department manager',
+              'children': [
+                { 'id': '4', 'expr': 'Tie Hua', 'title': 'senior engineer' },
+                { 'id': '5', 'expr': 'Hei Hei', 'title': 'senior engineer',
+                  'children': [
+                    { 'id': '6', 'expr': 'Pang Pang', 'title': 'engineer' },
+                    { 'id': '7', 'expr': 'Xiang Xiang', 'title': 'UE engineer' }
+                  ]
+                 }
+               ]
+             },
+            { 'id': '8', 'expr': 'Hong Miao', 'title': 'department manager' },
+            { 'id': '9', 'expr': 'Chun Miao', 'title': 'department manager' }
+          ]
+        }
+
+
+/**
+ * 解析正则表达式为语法树结构
+ * @param {String} regExp 要解析的正则表达式
+ * @returns 语法树结构
+ */
 export function parseRegular(regExp) {
   // 〇、校验 
   // todo 后面补上
 
   // 一、分割：位置边界（同时添加描述）
-  const boundaryParseData = parseModuleBoundary(regExp + "");
-  const { viewData, idx } = boundaryParseData;
+  const anchorParseData = parseModuleAnchors(regExp + "");
+  const bodyInd = anchorParseData.findIndex(item => item.type == "body");
 
-  if (viewData[idx]) {
-    // 二、循环分割，构建数据层级（同时添加描述）
+  if (bodyInd !== -1) {
+    // 二、层级解析，构建数据层级（同时添加描述）
+    const levelData = parseRegularChild(anchorParseData[bodyInd].expr);
+    console.log("层级解析:", levelData);
+    
+    // 三、平级内容解析
     // 成对符号 & 数量符号（将括号外的特殊数量符号 *+？也作为成对符号进行分割）
-    const levelData = parseRegularChild(viewData[idx].expr);
-    console.log("循环分割:", levelData);
-  
-    // 三、合并： 限制 + 数量；或操作 | 前后
-    const limitData = mergeLimitRange(levelData);
-    console.log("合并量词:", limitData);
+    const flatData = parseModuleFlat(levelData);
+    console.log("平级内容解析:", flatData);
 
-    viewData[idx].child = limitData;
+    
+  
+    // 四、合并： 限制 + 数量；或操作 | 前后
+    const mergeData = mergeLimitRange(flatData);
+    console.log("合并量词:", mergeData);
+
+    anchorParseData[bodyInd].children = mergeData;
   }
 
   // 转化为视图数据格式
-  return viewData;
+  return anchorParseData;
 }
 
 
@@ -228,49 +277,94 @@ export function parseRegular(regExp) {
 
 
 /**
- * 解析: 解析子表达式及其集合 (包括层级)
+ * 解析: 位置边界（开始、结束）
+ */
+function parseModuleAnchors(strOut) {
+  // 假定全局只有一个（且不考虑转义的情况）
+  const viewData = []; // 展示用数据
+  
+  // 判断有没有 开始符号 ^
+  const execS = /(?<!\[)\^/.exec(strOut);
+  let startOther = "";
+  if (execS) {
+    const sChar = execS[0];
+    const startArr = splitFromStr(strOut, sChar);
+    viewData.push({
+      id: sChar,
+      expr: sChar,
+      type: "start",
+      explain: CHARS_ENUM[sChar]?.explain
+    })
+    startOther = startArr[2];
+  } else {
+    startOther = strOut;
+  }
+
+  // 判断有没有 结束符号 $
+  const execE = /\$/.exec(startOther);
+  if (execE) {
+    const eChar = execE[0];
+    const endArr = splitFromStr(startOther, eChar);
+    // 结束符号之前的内容
+    if (endArr[0]) {
+      viewData.push({
+        id: endArr[0],
+        expr: endArr[0],
+        type: "body",
+        explain: "要匹配的全部内容",
+        expand: true,
+      });
+    }
+    // 有结束符号
+    if (endArr[1]) {
+      viewData.push({
+        id: eChar,
+        expr: eChar,
+        type: "end",
+        explain: CHARS_ENUM[eChar]?.explain
+      })
+    }
+  }
+  
+  return viewData;
+}
+
+/**
+ * 解析: 嵌套结构 (包括层级)
+ * todo 只有 () 有嵌套结构 
  * 
- * @param {String} strOut 正则子表达式字符串 
- * @returns {Array} 正则表达式解析后的数据
+ * @param {String} strOut 正则子表达式
+ * @returns {Array} 嵌套结构数据
  */
 function parseRegularChild(strOut) {
   // 先不考虑转义的情况
   const viewData = []; // 展示用数据
-  const mapping = {
-    "(": ["(", ")"],
-    "[": ["[", "]"],
-    "{": ["{", "}"],
-  };
 
-  // 判断有没有，并且拿到是哪个 (包括量词的花括号)
-  const exec = /[\(\[\{]{1}/g.exec(strOut);
+  // 判断有没有 (
+  const exec = /\(/g.exec(strOut);
   if(exec) {
     // 有符号的就先解析符号
-    const matchChar = mapping[exec[0]];
-    const pairArr = splitFromPaired(strOut, matchChar[0], matchChar[1]);
+    const pairArr = splitFromPaired(strOut, exec[0]);
 
     // 前面肯定没有符号了
     if (pairArr[0]) {
       // 解析数量相关字符
-      const quantArr = parseModuleQuants(pairArr[0]);
-      viewData.push(...quantArr);
+      viewData.push({
+        id: pairArr[0],
+        expr: pairArr[0],
+      });
     }
 
     // 当前解析出来的，也放入
     const content = pairArr[1].slice(0 + 1, pairArr[1].length - 1);
-    // console.log("符号内的内容 content:", content);
     viewData.push({
+      id: pairArr[1],
       expr: pairArr[1],
-      explain: matchChar[0] == "{" 
-          ? getDescCurly(content) 
-          : CHARS_ENUM[(matchChar[0] + matchChar[1])]?.explain,
+      type: "child",
+      explain: CHARS_ENUM["()"]?.explain,
+      expand: true,
       // 把当前符号内的内容也继续解析，作为子项
-      child: matchChar[0] == "{" ? null : parseRegularChild(content)
-      // child: matchChar[0] == "{" ? null : [
-      //   { expr: matchChar[0], explain: CHARS_ENUM[matchChar[0]]?.explain },
-      //   ...parseRegularChild(content),
-      //   { expr: matchChar[1], explain: CHARS_ENUM[matchChar[1]]?.explain },
-      // ]
+      children: parseRegularChild(content)
     });
 
     // 后面的，继续解析
@@ -280,8 +374,8 @@ function parseRegularChild(strOut) {
     }
   } else {
     viewData.push({
+      id: strOut,
       expr: strOut,
-      explain: CHARS_ENUM[strOut]?.explain ?? "匹配" + strOut
     });
   }
   
@@ -289,100 +383,238 @@ function parseRegularChild(strOut) {
 }
 
 /**
- * 解析: 数量字符
+ * 解析: 平级内容
  */
-function parseModuleQuants(strOut) {
+function parseModuleFlat(outArr) {
+  const flatArr = [];
+  for (let i = 0; i < outArr.length; i++) {
+    const curr = outArr[i];
+
+    // 只解析没有子项的
+    if (curr.children?.length > 0) {
+      curr.children = parseModuleFlat(curr.children);
+      flatArr.push(curr);
+    } else {
+      // 平级 第一步，拆出所有的平级。 
+      // [] 拆解
+      const gaqArr = parseModuleRangeAndQuant(curr.expr);
+      gaqArr.map(item => {
+        // 单个字符拆解
+        if (!item.type) {
+          const charArr = parseRegularCharacter(item.expr);
+          flatArr.push(...charArr);
+        } else if (item.type == "range") {
+          // 添加前后缀
+          let contentOut = item.expr.slice(1, -1); // 去掉 []
+          if (contentOut.startsWith("^")) {
+            item.prefix = "[^";
+            contentOut = contentOut.slice(1);
+          } else {
+            item.prefix = "[";
+          }
+          item.expr = contentOut;
+          item.suffix = "]";
+
+          item.children = parseRegularRangeCharacter(contentOut);
+          flatArr.push(item);
+        } else {
+          flatArr.push(item);
+        }
+      })
+
+      // [] 这个比较特殊；需要分割为子项,子项内要处理 A-Z 这种格式的字符集
+      // 平级 第二步，{} *+?
+      // 平级 第三步，转义字符集 \w \W \s \S \d \D
+    }
+  }
+  return flatArr;
+}
+
+/**
+ * 解析: 数据集 [] 及其中间的数据
+ */
+function parseModuleRangeAndQuant(strOut) {
   // 先不考虑转义的情况
   const viewData = []; // 展示用数据
 
   // 判断有没有，并且拿到是哪个
-  const exec = /[\*\+\?]\??/g.exec(strOut);
-  if(exec) {
-    const matchChar = exec[0];
-    const charArr = splitFromStr(strOut, matchChar);
+  const execRes = /\[|\{|[\*\+\?]\??/.exec(strOut);
+  let matchChar = "";
+  let matchType = "";
+  let splitArr = [];
 
+  if (execRes) {
+    matchChar = execRes[0];
+    if (matchChar == "[") {
+      // 成对符号 []
+      matchType = "range";
+      splitArr = splitFromPaired(strOut, matchChar)
+    } else if (matchChar == "{") {
+      // 成对符号 {}
+      matchType = "quant";
+      splitArr = splitFromPaired(strOut, matchChar)
+    } else {
+      // 特殊符号 *+？
+      matchType = "quant";
+      splitArr = splitFromStr(strOut, matchChar)
+    }
+  }
+
+  // 字符集
+  // 成对符号 []
+  // 内部 转义符号 \w \W \s \S \d \D
+
+  // 限制符 (量词)，包括 {} 和 *+?
+
+  // 没有拆分
+  if(splitArr.length == 0) {
+    viewData.push({
+      id: strOut,
+      expr: strOut,
+      explain: "没有拆分"
+    });
+  } else {
+    // 是匹配到了才去拆分了，肯定是3条数据的数组
     // 前面的
-    if (charArr[0]) {
+    if (splitArr[0]) {
       viewData.push({
-        expr: charArr[0],
-        explain: CHARS_ENUM[strOut]?.explain ?? "匹配" + charArr[0]
+        id: splitArr[0],
+        expr: splitArr[0],
+        explain: "不能拆了"
       });
     }
 
     // 当前解析出来的，直接放入
     viewData.push({
-      expr: matchChar,
-      explain: CHARS_ENUM[matchChar]?.explain,
+      id: splitArr[1],
+      expr: splitArr[1],
+      type: matchType,
+      expand: true,
+      explain: "当前解析出来的，直接放入",
     });
 
     // 后面的继续解析
-    if (charArr[2]) {
-      const otherArr = parseModuleQuants(charArr[2]);
+    if (splitArr[2]) {
+      const otherArr = parseModuleRangeAndQuant(splitArr[2]);
       viewData.push(...otherArr);
     }
-  } else {
-    viewData.push({
-      expr: strOut,
-      explain: CHARS_ENUM[strOut]?.explain ?? "匹配" + strOut
-    });
   }
 
   return viewData;
 }
 
 /**
- * 解析: 位置边界（开始、结束）
+ * 解析: 字符集中的单个字符
  */
-function parseModuleBoundary(strOut) {
-  // 假定全局只有一个（且不考虑转义的情况）
-  const sStr = "^", eStr = "$";
+function parseRegularRangeCharacter(strOut) {
+  // 先不考虑转义的情况
   const viewData = []; // 展示用数据
-  let idx = -1; // 后面要解析的内容，在数组中的下标
 
-  // 开始
-  const startArr = splitFromStr(strOut, sStr);
-  let startOther = "";
-  // 有开始符号
-  if (startArr[1]) {
-    idx = 0;
-    // 开始符号以后的内容
-    startOther = startArr[2];
-    viewData.push({
-      expr: sStr,
-      explain: CHARS_ENUM[sStr]?.explain
-    })
-  } else {
-    startOther = startArr[0];
-  }
+  // ^ 这个 会被解析到 最外层 todo
 
-  // 结束
-  const endArr = splitFromStr(startOther, eStr);
-  // 结束符号之前的内容
-  if (endArr[0]) {
-    idx += 1;
-    viewData.push({
-      expr: endArr[0],
-      explain: "todo"
-    });
-  } else {
-    idx = -1;
-  }
-  // 有结束符号
-  if (endArr[1]) {
-    viewData.push({
-      expr: eStr,
-      explain: CHARS_ENUM[eStr]?.explain
-    })
-  }
+  // 判断有没有，并且拿到是哪个
+  const execRes = /(\S)-(\S)/.exec(strOut);
+  let matchChar = "";
+  let matchType = "";
+  let splitArr = [];
   
-  // console.log("[parseModuleBoundary] idx:", idx, " viewData: ", viewData);
-  return {
-    idx,
-    viewData
-  };
+  if (execRes) {
+    matchChar = execRes[0];
+    matchType = "range_fromto";
+    splitArr = splitFromStr(strOut, matchChar)
+  }
+
+  // 没有拆分
+  if(splitArr.length == 0) {
+    const charArr = parseRegularCharacter(strOut);
+    viewData.push(...charArr);
+  } else {
+    // 是匹配到了才去拆分了，肯定是3条数据的数组
+    // 前面的
+    if (splitArr[0]) {
+      const charArr = parseRegularCharacter(splitArr[0]);
+      viewData.push(...charArr);
+    }
+
+    // 当前解析出来的，直接放入
+    viewData.push({
+      id: splitArr[1],
+      expr: splitArr[1],
+      type: matchType,
+      explain: "当前解析出来的，直接放入",
+    });
+
+    // 后面的继续解析
+    if (splitArr[2]) {
+      const otherArr = parseRegularRangeCharacter(splitArr[2]);
+      viewData.push(...otherArr);
+    }
+  }
+
+  return viewData;
 }
 
+/**
+ * 解析: 单个字符
+ */
+function parseRegularCharacter(strOut) {
+  // 先不考虑转义的情况
+  const viewData = []; // 展示用数据
 
+  // 判断有没有，并且拿到是哪个
+  const execRes = /(\\d)|(\\D)|(\\w)|(\\W)|(\\d)|(\\D)/.exec(strOut);
+  let matchChar = "";
+  let matchType = "";
+  let splitArr = [];
+
+  if (execRes) {
+    matchChar = execRes[0];
+    // 转义符号 \d \D \w \W \s \S
+    matchType = "escape";
+    splitArr = splitFromStr(strOut, matchChar)
+  }
+
+  // 没有拆分
+  if(splitArr.length == 0) {
+    strOut.split("").map(charSingle => {
+      viewData.push({
+        id: charSingle,
+        expr: charSingle,
+        type: "single",
+        explain: "单字符",
+      });
+    });
+  } else {
+    // 是匹配到了才去拆分了，肯定是3条数据的数组
+    // 前面的
+    if (splitArr[0]) {
+      splitArr[0].split("").map(charSingle => {
+        viewData.push({
+          id: charSingle,
+          expr: charSingle,
+          type: "single",
+          explain: "单字符",
+        });
+      });
+    }
+
+    // 当前解析出来的，直接放入
+    viewData.push({
+      id: splitArr[1],
+      expr: splitArr[1],
+      type: matchType,
+      explain: "当前解析出来的，直接放入",
+    });
+
+    // 后面的继续解析
+    if (splitArr[2]) {
+      const otherArr = parseRegularCharacter(splitArr[2]);
+      viewData.push(...otherArr);
+    }
+  }
+
+  return viewData;
+}
 
 /****** ----------------------------------  帮助方法  ------------------------------------ ******/
 
@@ -411,12 +643,12 @@ function splitFromStr(strWhole, strSplit) {
  * 根据所给成对符号，分割为 前、符号及其内部内容、后
  * 
  * @param {String} strWhole 全部字符串
- * @param {String} strFront 要分割的开始
+ * @param {String} strBracket 要分割的开始
  * @param {String} strSplit 要分割的结束
  * @returns 最后分割后的字符串数组
  */
-function splitFromPaired(strWhole, strFront, strEnd) {
-  const [sInd, eInd] = matchBracket(strWhole, strFront, strEnd);
+function splitFromPaired(strWhole, strBracket) {
+  const [sInd, eInd] = matchBracket(strWhole, strBracket);
   if(sInd > -1) {
     return [
       strWhole.slice(0, sInd),
@@ -431,7 +663,14 @@ function splitFromPaired(strWhole, strFront, strEnd) {
 /**
  * 找到匹配的成对括号下标
  */
-function matchBracket(strWhole, strFront, strEnd) {
+function matchBracket(strWhole, strBracket) {
+  const mapping = {
+    "(": ["(", ")"],
+    "[": ["[", "]"],
+    "{": ["{", "}"],
+  };
+  const [strFront, strEnd] = mapping[strBracket];
+
   let count = 0;
   let sInd = -1;
   let eInd = -1;
@@ -464,19 +703,17 @@ function mergeLimitRange(outArr) {
     const next = outArr[i + 1];
 
     // 如果有子表达式
-    if (curr.child?.length > 0) {
-      curr.child = mergeLimitRange(curr.child);
+    if (curr.children?.length > 0) {
+      curr.children = mergeLimitRange(curr.children);
     }
 
     const marchChar = /^[\*\+\?]\??$/.exec(next?.expr)?.[0];
     const isCurly = /^\{\d+,?\d*?\}$/.exec(next?.expr)?.[0];
     if (next && (next.expr == marchChar || isCurly)) {
-      mergeArr.push({
-        expr: curr.expr + next.expr,
-        explain: curr.explain + ", " + next.explain,
-        tip: curr.tip + ", " + next.tip,
-        child: curr.child
-      });
+      curr.suffix = (curr.suffix ?? "") + next.expr;
+      curr.type = curr.type + "_" + next.type;
+      curr.explain = curr.explain + ", " + next.explain;
+      mergeArr.push(curr);
       i++;
     } else {
       mergeArr.push(curr);
@@ -534,12 +771,12 @@ function getExplainText(expr, type) {
   }
   // 具体内容
   if (expr.startsWith("[")) {
-    const [sInd, eInd] = matchBracket(expr, "[", "]"); 
+    const [sInd, eInd] = matchBracket(expr, "["); 
     const content = expr.slice(sInd + 1, eInd - 1);
     return "匹配" + content + "中的任意一个"; 
   }
   if (expr.startsWith("(")) {
-    const [sInd, eInd] = matchBracket(expr, "(", ")"); 
+    const [sInd, eInd] = matchBracket(expr, "("); 
     const content = expr.slice(sInd + 1, eInd - 1);
     return "匹配" + content + "中的全部"; 
   }
