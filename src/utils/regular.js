@@ -324,6 +324,14 @@ function parseModuleAnchors(strOut) {
         explain: CHARS_ENUM[eChar]?.explain
       })
     }
+  } else {
+    viewData.push({
+      id: startOther,
+      expr: startOther,
+      type: "body",
+      explain: "要匹配的全部内容",
+      expand: true,
+    });
   }
   
   return viewData;
@@ -356,10 +364,19 @@ function parseRegularChild(strOut) {
     }
 
     // 当前解析出来的，也放入
-    const content = pairArr[1].slice(0 + 1, pairArr[1].length - 1);
+    let content = pairArr[1].slice(1, -1);
+    // 添加前后缀
+    const execPre = /^\?<?[:=!]/.exec(content);
+    let prefix = "(";
+    if (execPre) {
+      prefix += execPre[0];
+      content = content.slice(execPre[0].length);
+    }
     viewData.push({
       id: pairArr[1],
-      expr: pairArr[1],
+      prefix,
+      suffix: ")",
+      expr: content,
       type: "child",
       explain: CHARS_ENUM["()"]?.explain,
       expand: true,
