@@ -14,7 +14,8 @@ import ParseResultRender from "./ParseResultRender.vue";
 
 import { mockDataCTree, DESC_TIPS, parseRegular } from "@/utils/regular.js";
 
-const regExp = ref("13+[a-zA-Z\\w-]BF{0,2}(\\dab\\D*?(a-zA)[RWE]{2,5})344(Rondle)$");
+// const regExp = ref("13+[a-zA-Z\\w-]BF{0,2}(\\dab\\D*?(a-zA)[RWE]{2,5})344(Rondle)$");
+const regExp = ref("(sdasdgd)67|ab?(c|de*)+|ac\\w|=\\d");
 
 // 解析结果数据
 const parseRes = ref([]);
@@ -86,7 +87,7 @@ function onParse() {
   parseRes.value = regRes;
 
   parseResTree.expr = regExp.value;
-  parseResTree.children = regRes;
+  parseResTree.children = setExpand(regRes, true);
   // chart.render({
   //   "id": "idA",
   //   "name": "A",
@@ -95,6 +96,19 @@ function onParse() {
 
   console.log("regRes:", regRes);
   console.log("parseResTree:", parseResTree);
+}
+
+/**
+ * 方法: 设置展开/收起状态
+ */
+function setExpand(arr, expand) {
+  arr.forEach(item => {
+    item.expand = expand;
+    if (item.children) {
+      setExpand(item.children, expand);
+    }
+  });
+  return arr;
 }
 </script> 
 
@@ -150,6 +164,7 @@ function onParse() {
                     <div class="prefix" v-show="data.prefix">{{ data.prefix }}</div>
                     <div class="content">
                       <div style="white-space: nowrap;">{{ data.expr }}</div>
+                      <div style="white-space: nowrap;">{{ data.type }}</div>
                     </div>
                     <div class="suffix" v-show="data.suffix">{{ data.suffix }}</div>
                   </div>

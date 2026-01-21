@@ -181,21 +181,6 @@ export const DESC_TIPS = [
 
 
 
-/**
- * 解析正则表达式
- * 
- * 运算符优先级
- * 
- * --  转义符 \ 
- *     需转义的有：^ $ ( ) [ ] { } * + ? | \ < > .
- * --  圆括号和方括号 (), (?:), (?=), [ ]
- * --  限定符（量词）*, +, ?, {n}, {n,}, {n,m}
- * --  任何元字符、任何字符 ^, $, \w
- * --  或操作 | 
- * 
- * @param {String} regExp 正则表达式字符串 
- * @returns {Array} 正则表达式解析后的数据
- */
 
 
 export const mockData = [
@@ -236,10 +221,22 @@ export const mockDataCTree = {
         }
 
 
+
 /**
  * 解析正则表达式为语法树结构
- * @param {String} regExp 要解析的正则表达式
- * @returns 语法树结构
+ * 
+ * 运算符优先级
+ * 
+ * --  转义符 \ 
+ *     需转义的有：^ $ ( ) [ ] { } * + ? | \ < > .
+ * --  圆括号 (), (?:), (?=), (?!), (?<=), (?<!)
+ * --  方括号 [], [^]
+ * --  限定符（量词）*, +, ?, {n}, {n,}, {n,m}
+ * --  任何元字符、任何字符 ^, $, \w
+ * --  或操作 | 
+ * 
+ * @param {String} regExp 正则表达式字符串 
+ * @returns {Array} 语法树结构数据
  */
 export function parseRegular(regExp) {
   // 〇、校验 
@@ -250,6 +247,7 @@ export function parseRegular(regExp) {
   const bodyInd = anchorParseData.findIndex(item => item.type == "body");
 
   if (bodyInd !== -1) {
+
     // 二、层级解析，构建数据层级（同时添加描述）
     const levelData = parseRegularChild(anchorParseData[bodyInd].expr);
     console.log("层级解析:", levelData);
@@ -312,7 +310,6 @@ function parseModuleAnchors(strOut) {
         expr: endArr[0],
         type: "body",
         explain: "要匹配的全部内容",
-        expand: true,
       });
     }
     // 有结束符号
@@ -330,11 +327,50 @@ function parseModuleAnchors(strOut) {
       expr: startOther,
       type: "body",
       explain: "要匹配的全部内容",
-      expand: true,
     });
   }
   
   return viewData;
+}
+
+
+/**
+ * 解析: 逻辑或
+ */
+function parseModuleOr(strOut, strType) {
+  // 先不考虑转义的情况
+  const orData = []; // 展示用数据
+
+  // 判断有没有 (
+  const exec = /(?<!\([^()]*)\|/.exec(strOut);
+  if(exec) {
+    const orInd = exec.index;
+    const orArr = [
+      strOut.slice(0, orInd),
+      strOut.slice(orInd, orInd + 1),
+      strOut.slice(orInd + 1),
+    ]
+    orData.push({
+      id: orArr[0],
+      expr: orArr[0],
+      type: "or_part",
+    });
+    orData.push({
+      id: orArr[1],
+      expr: orArr[1],
+      type: "or",
+    });
+    const otherArr = parseModuleOr(orArr[2], "or_part");
+    orData.push(...otherArr);
+  } else {
+    orData.push({
+      id: strOut,
+      expr: strOut,
+      type: strType,
+    });
+  }
+
+  return orData;
 }
 
 /**
@@ -345,58 +381,59 @@ function parseModuleAnchors(strOut) {
  * @returns {Array} 嵌套结构数据
  */
 function parseRegularChild(strOut) {
-  // 先不考虑转义的情况
-  const viewData = []; // 展示用数据
+  // 1、逻辑或拆解，分隔符 |
+  const orData = parseModuleOr(strOut);
+  console.log("或解析:", orData);
 
-  // 判断有没有 (
-  const exec = /\(/g.exec(strOut);
-  if(exec) {
-    // 有符号的就先解析符号
-    const pairArr = splitFromPaired(strOut, exec[0]);
+  orData.forEach(item => {
+    // 判断有没有 (
+    const exec = /\(/g.exec(item.expr);
+    if(exec) {
+      // 先不考虑转义的情况
+      const viewData = []; // 展示用数据
+      // 有符号的就先解析符号
+      const pairArr = splitFromPaired(item.expr, exec[0]);
 
-    // 前面肯定没有符号了
-    if (pairArr[0]) {
-      // 解析数量相关字符
-      viewData.push({
-        id: pairArr[0],
-        expr: pairArr[0],
-      });
-    }
-
-    // 当前解析出来的，也放入
-    let content = pairArr[1].slice(1, -1);
-    // 添加前后缀
-    const execPre = /^\?<?[:=!]/.exec(content);
-    let prefix = "(";
-    if (execPre) {
-      prefix += execPre[0];
-      content = content.slice(execPre[0].length);
-    }
-    viewData.push({
-      id: pairArr[1],
-      prefix,
-      suffix: ")",
-      expr: content,
-      type: "child",
-      explain: CHARS_ENUM["()"]?.explain,
-      expand: true,
-      // 把当前符号内的内容也继续解析，作为子项
-      children: parseRegularChild(content)
-    });
-
-    // 后面的，继续解析
-    if (pairArr[2]) {
-      const childArr = parseRegularChild(pairArr[2]);
-      viewData.push(...childArr);
-    }
-  } else {
-    viewData.push({
-      id: strOut,
-      expr: strOut,
-    });
-  }
+      // 前面肯定没有符号了
+      if (pairArr[0]) {
+        // 解析数量相关字符
+        viewData.push({
+          id: pairArr[0],
+          expr: pairArr[0],
+        });
+      }
   
-  return viewData;
+      // 当前解析出来的，也放入
+      let content = pairArr[1].slice(1, -1);
+      // 添加前后缀
+      const execPre = /^\?<?[:=!]/.exec(content);
+      let prefix = "(";
+      if (execPre) {
+        prefix += execPre[0];
+        content = content.slice(execPre[0].length);
+      }
+      viewData.push({
+        id: pairArr[1],
+        prefix,
+        suffix: ")",
+        expr: content,
+        type: "child",
+        explain: CHARS_ENUM["()"]?.explain,
+        // 把当前符号内的内容也继续解析，作为子项
+        children: parseRegularChild(content)
+      });
+  
+      // 后面的，继续解析
+      if (pairArr[2]) {
+        const childArr = parseRegularChild(pairArr[2]);
+        viewData.push(...childArr);
+      }
+
+      item.children = viewData;
+    }
+  });
+  
+  return orData;
 }
 
 /**
@@ -414,12 +451,18 @@ function parseModuleFlat(outArr) {
     } else {
       // 平级 第一步，拆出所有的平级。 
       // [] 拆解
-      const gaqArr = parseModuleRangeAndQuant(curr.expr);
+      const gaqArr = parseModuleRangeAndQuant(curr);
       gaqArr.map(item => {
         // 单个字符拆解
         if (!item.type) {
           const charArr = parseRegularCharacter(item.expr);
           flatArr.push(...charArr);
+        } else if (item.type == "or_part") {
+          const orPartChild = parseRegularCharacter(item.expr);
+          if (orPartChild.length > 1) {
+            item.children = parseRegularCharacter(item.expr);
+          }
+          flatArr.push(item);
         } else if (item.type == "range") {
           // 添加前后缀
           let contentOut = item.expr.slice(1, -1); // 去掉 []
@@ -450,10 +493,13 @@ function parseModuleFlat(outArr) {
 /**
  * 解析: 数据集 [] 及其中间的数据
  */
-function parseModuleRangeAndQuant(strOut) {
+function parseModuleRangeAndQuant(objOut) {
+  const {expr: strOut, type: strType} = objOut;
   // 先不考虑转义的情况
   const viewData = []; // 展示用数据
 
+  // 字符集 []
+  // 限制符 (量词)，包括 {} 和 *+?
   // 判断有没有，并且拿到是哪个
   const execRes = /\[|\{|[\*\+\?]\??/.exec(strOut);
   let matchChar = "";
@@ -477,17 +523,12 @@ function parseModuleRangeAndQuant(strOut) {
     }
   }
 
-  // 字符集
-  // 成对符号 []
-  // 内部 转义符号 \w \W \s \S \d \D
-
-  // 限制符 (量词)，包括 {} 和 *+?
-
   // 没有拆分
   if(splitArr.length == 0) {
     viewData.push({
       id: strOut,
       expr: strOut,
+      type: strType,
       explain: "没有拆分"
     });
   } else {
@@ -506,13 +547,14 @@ function parseModuleRangeAndQuant(strOut) {
       id: splitArr[1],
       expr: splitArr[1],
       type: matchType,
-      expand: true,
       explain: "当前解析出来的，直接放入",
     });
 
     // 后面的继续解析
     if (splitArr[2]) {
-      const otherArr = parseModuleRangeAndQuant(splitArr[2]);
+      const otherArr = parseModuleRangeAndQuant({
+        expr: splitArr[2]
+      });
       viewData.push(...otherArr);
     }
   }
@@ -526,8 +568,6 @@ function parseModuleRangeAndQuant(strOut) {
 function parseRegularRangeCharacter(strOut) {
   // 先不考虑转义的情况
   const viewData = []; // 展示用数据
-
-  // ^ 这个 会被解析到 最外层 todo
 
   // 判断有没有，并且拿到是哪个
   const execRes = /(\S)-(\S)/.exec(strOut);
