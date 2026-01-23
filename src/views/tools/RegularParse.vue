@@ -17,7 +17,8 @@ import { mockDataCTree, DESC_TIPS, parseRegular } from "@/utils/regular.js";
 // const regExp = ref("13+[a-zA-Z\\w-]BF{0,2}(\\dab\\D*?(a-zA)[RWE]{2,5})344(Rondle)$");
 // const regExp = ref("(sdasdgd)67|ab?(c|de*)+|ac\\w|=\\d");
 // const regExp = ref("st^(m|n)ak|[0-9]?\\d{1,12}|124n*$end");
-const regExp = ref("[\\dA-Zabdc]{2,5}-(\\d1234+)rondle22");
+// const regExp = ref("[\\dA-Zabdc]{2,5}-(\\d1234+)rondle22");
+const regExp = ref("(a-zA)[RWE]{2,5}");
 // const regExp = ref("[^A-Zabc]");
 // const regExp = ref("^(us|(US|AM))(en|EN)|(CN|cn)$");
 // const regExp = ref("^us|(US|AM)");
@@ -170,7 +171,7 @@ function setExpand(arr, expand) {
                     <div class="prefix" v-show="data.prefix">{{ data.prefix }}</div>
                     <div class="content">
                       <div style="white-space: nowrap;">{{ data.expr }}</div>
-                      <div style="white-space: nowrap;">{{ data.type }}</div>
+                      <!-- <div style="white-space: nowrap;">{{ data.type }}</div> -->
                     </div>
                     <div class="suffix" v-show="data.suffix">{{ data.suffix }}</div>
                   </div>
