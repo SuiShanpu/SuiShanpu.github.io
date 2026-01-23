@@ -15,12 +15,18 @@ import ParseResultRender from "./ParseResultRender.vue";
 import { mockDataCTree, DESC_TIPS, parseRegular } from "@/utils/regular.js";
 
 // const regExp = ref("13+[a-zA-Z\\w-]BF{0,2}(\\dab\\D*?(a-zA)[RWE]{2,5})344(Rondle)$");
-const regExp = ref("(sdasdgd)67|ab?(c|de*)+|ac\\w|=\\d");
+// const regExp = ref("(sdasdgd)67|ab?(c|de*)+|ac\\w|=\\d");
+// const regExp = ref("st^(m|n)ak|[0-9]?\\d{1,12}|124n*$end");
+const regExp = ref("[\\dA-Zabdc]{2,5}-(\\d1234+)rondle22");
+// const regExp = ref("[^A-Zabc]");
+// const regExp = ref("^(us|(US|AM))(en|EN)|(CN|cn)$");
+// const regExp = ref("^us|(US|AM)");
 
 // 解析结果数据
 const parseRes = ref([]);
 const parseResTree = reactive({
-  expr: 'root',
+  expr: '语法树',
+  type: 'root',
   expand: true,
   children: [],
 });
@@ -103,8 +109,8 @@ function onParse() {
  */
 function setExpand(arr, expand) {
   arr.forEach(item => {
-    item.expand = expand;
     if (item.children) {
+      item.expand = expand;
       setExpand(item.children, expand);
     }
   });
@@ -146,12 +152,12 @@ function setExpand(arr, expand) {
           <template #leftExtra>
             <p class="title">解析结果</p>
           </template>
-          <a-tab-pane key="panel" tab="面板状">
+          <a-tab-pane key="panel" tab="收缩面板">
             <div class="parse-result">
               <ParseResultRender v-model:data-source="parseRes" />
             </div>
           </a-tab-pane>
-          <a-tab-pane key="tree" tab="方形树状">
+          <a-tab-pane key="tree" tab="语法树">
             <div class="parse-result">
               <blocks-tree 
                 :data="parseResTree" 
@@ -201,6 +207,24 @@ function setExpand(arr, expand) {
           </a-tab-pane>
         </a-tabs>
       </div>
+
+      <!-- 符号优先级 -->
+      <div class="priority">
+        <p class="title">符号优先级</p>
+        <div class="priority-list">
+          <div class="icon">
+            <img src="@/assets/priority-level.png" alt="">
+          </div>
+          <div class="list">
+            <div>1. 转义符 <span class="char"> \ 如：\w \W \s \S \d \D， \( \) \[ \] \* \+ \? \|</span></div>
+            <div>2. 圆括号和方括号 <span class="char"> () (?:) (?=) (?!) (?&lt;=) (?&lt;!) [] [^]</span></div>
+            <div>3. 限定符（量词）<span class="char">{n} {n,} {n,m} * + ? </span></div>
+            <div>4. 边界序列 <span class="char"> ^ $ </span></div>
+            <div>5. 或操作 <span class="char"> | </span></div>
+          </div>
+        </div>
+      </div>
+
       <div class="meta">
         <p class="title">匹配说明</p>
         <div class="meta-desc">
@@ -381,6 +405,35 @@ function setExpand(arr, expand) {
       border-radius: 5px;
       font-size: 15px;
       font-weight: 500;
+    }
+  }
+}
+
+.priority-list {
+  background-color: #fff;
+  border-radius: 5px;
+  padding: 4px 16px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+
+  .icon img {
+    width: 30px;
+    height: 145px;
+  }
+  .list {
+    margin-left: 12px;
+
+    > div {
+      margin: 6px 0;
+    }
+    .char {
+      background-color: #e5e5e5;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-weight: 500;
+      word-spacing: 16px;
     }
   }
 }
