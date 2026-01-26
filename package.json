@@ -15,6 +15,7 @@
     "ant-design-vue": "^4.2.6",
     "dayjs": "^1.11.18",
     "less": "^4.4.1",
+    "lunar-javascript": "^1.7.7",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4",
     "vue3-blocks-tree": "^0.6.2"

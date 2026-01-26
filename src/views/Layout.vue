@@ -1,25 +1,26 @@
 <script setup>
 import { ref } from 'vue';
 import dayjs from 'dayjs';
+import { Lunar } from 'lunar-javascript';
+
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
 
-const DAYJS_FORMAT_TIME = "YYYY-MM-DD HH:mm:ss";
+const DAYJS_FORMAT_DATE = "YYYY-MM-DD";
+const DAYJS_FORMAT_TIME = "HH:mm:ss";
+const DAYJS_FORMAT_WEEk = "dddd";
 
-const dateNow = ref(dayjs().format(DAYJS_FORMAT_TIME));
-// const localNow = "asdg";
-// fetch('https://ipapi.co/json/')
-//   .then(response => response.json())
-//   .then(data => {
-//     console.log("当前城市名称:", data);
-//   })
-//   .catch(error => console.log("无法获取城市名称", error));
-// ;
+const dateNow = ref(dayjs().format(DAYJS_FORMAT_DATE)); // 年月日
+const timeNow = ref(dayjs().format(DAYJS_FORMAT_TIME)); // 周几
+const weekNow = ref(dayjs().format(DAYJS_FORMAT_WEEk)); // 时分秒
+const lunarObj = Lunar.fromDate(new Date()); // 农历
+const lunarFormat = `${ lunarObj.getYearGan() }${ lunarObj.getYearZhi() }(${lunarObj.getYearShengXiao()})年 ${ lunarObj.getMonthInChinese() }月${ lunarObj.getDayInChinese() }`;
 
+// 时分秒，同步变化
 setInterval(() => {
-  dateNow.value = dayjs().format(DAYJS_FORMAT_TIME);
+  timeNow.value = dayjs().format(DAYJS_FORMAT_TIME);
 }, 1000)
 
 
@@ -35,12 +36,17 @@ function backHome() {
   <div class="sp-layout">
     <nav class="nav">
       <div class="common">
-        <HomeFilled  @click="backHome"/>
-        <span>{{ dateNow }}</span>
+        <!-- <HomeFilled  @click="backHome"/> -->
+        <img class="logo" src="../assets/shanpu-logo.png" @click="backHome" />
       </div>
-      <div class="profile">
-        <span class="name">山璞</span>
-        <img class="logo" src="../assets/shanpu-logo.png" />
+      <div class="datetime">
+         <div>
+           <span>{{ dateNow }}({{ weekNow }})</span>
+           <span>{{ lunarFormat }}</span>
+         </div>
+         <div>
+           <span class="time-text">{{ timeNow }}</span>
+         </div>
       </div>
     </nav>
     <div class="content">
@@ -85,12 +91,23 @@ function backHome() {
       height: 44px;
       background-color: #fff;
       border-radius: 25%;
+      cursor: pointer;
     }
   }
   .content {
     width: 100%;
     height: calc(100% - @navHeight);
     overflow-y: auto;
+  }
+
+
+  .datetime > div {
+    display: flex;
+    flex-direction: column;
+  }
+  .time-text {
+    width: 72px;
+    text-align: right;
   }
 }
 </style>
