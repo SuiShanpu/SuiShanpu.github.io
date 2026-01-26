@@ -139,8 +139,12 @@ export const DESC_TIPS = [
     {expr: "\\Z", explain: '匹配字符串结尾或结尾的换行符之前。'},
   ] },
   {title: "分组和捕获 Groups", items: [
-    {expr: "( )", explain: '用于分组和捕获子表达式,匹配并记住匹配子表达式。'},
-    {expr: "(?: )", explain: '用于分组但不捕获子表达式,匹配但不记住匹配子表达式。'},
+    {expr: "( )", explain: '用于分组和捕获匹配项, 匹配并记住匹配项。'},
+    {expr: "(?: )", explain: '（非捕获括号）用于分组但不捕获子表达式, 匹配但不记住匹配项。'},
+    {expr: "x(?=y)", explain: "（先行断言）'x'后面跟着'y'时匹配'x'."},
+    {expr: "x(?!y)", explain: "（正向否定查找）仅当'x'后面不跟着'y'时匹配'x'."},
+    {expr: "(?<=y)x", explain: "（后行断言）仅当'x'前面是'y'匹配'x'."},
+    {expr: "(?<!y)x", explain: "（反向否定查找）仅当'x'前面不是'y'时匹配'x'."},
   ] },
   {title: "字符集 Ranges", items: [
     {expr: "[ ]", explain: '匹配括号内的任意一个字符。例如，[abc] 匹配字符 "a"、"b" 或 "c"。'},
@@ -271,7 +275,6 @@ export function parseRegular(regExp) {
   const rootMerges = mergeLimitRange(rootEscapes);
   console.log("rootMerges 合并量词:", rootMerges);
 
-
   return rootMerges;
 }
 
@@ -283,12 +286,10 @@ export function parseRegular(regExp) {
  */
 function parsePartOrs(objOut) {
   const {expr: strOut, type: typeOut} = objOut;
-  // 先不考虑转义的情况
   const viewData = []; // 展示用数据
-
-  // 判断有没有 ｜
-  // todo 正则有点问题。 如果是 (()|) 这样的结构，也会找出来
-  const execRes = /(?<!\([^()]*)\|/.exec(strOut);
+  
+  // 使用自定义方法判断有没有 ｜
+  const execRes = execLogicalOr(strOut);
   if(execRes) {
     // 有的话，拆分出来的子项会有层级
     let matchChar = execRes[0];
@@ -329,15 +330,15 @@ function parsePartOrs(objOut) {
  */
 function parsePartGroups(objOut) {
   const {expr: strOut, type: typeOut} = objOut;
-  // 先不考虑转义的情况
   const viewData = []; // 展示用数据
-
+  
   let matchChar = "";
   let matchType = "";
   let splitArr = [];
   
   // 判断有没有 ( [   同时判断，按照出现的先后顺序
-  const execRes = /\(|\[/.exec(strOut);
+  // 转义的情况: 仅当前面不是 \ 时匹配
+  const execRes = /(?<!\\)(\(|\[)/.exec(strOut);
   if(execRes) {
     matchChar = execRes[0];
     if (matchChar == "(") {
@@ -366,9 +367,8 @@ function parsePartGroups(objOut) {
         content = content.slice(execPre[0].length);
       }
     } else if (matchType == "group") {
-      let content = splitArr[1].slice(1, -1);
-      const execPre = /^\?<?[:=!]/.exec(content);
       prefix = "(", suffix = ")";
+      const execPre = /^\?<?[:=!]/.exec(content); // todo 正则有问题
       if (execPre) {
         prefix += execPre[0];
         content = content.slice(execPre[0].length);
@@ -406,9 +406,9 @@ function parsePartGroups(objOut) {
 function parsePartLevels(objOut) {
   const {expr: strOut, type: typeOut} = objOut;
   
-  // 先不考虑转义的情况
-  const execOr = /(?<!\([^()]*)\|/.exec(strOut);
-  const execGp = /\(|\[/.exec(strOut);
+  // 使用自定义方法判断有没有逻辑或 （必须跟方法 parsePartOrs 内的判断一致）
+  const execOr = execLogicalOr(strOut);
+  const execGp = /(?<!\\)(\(|\[)/.exec(strOut);
 
   let levelChild = [];
   if (execOr) {
@@ -438,11 +438,10 @@ function parsePartLevels(objOut) {
  */
 function parsePartAqs(objOut) {
   const {expr: strOut, type: typeOut} = objOut;
-  // 先不考虑转义的情况
   const viewData = []; // 展示用数据
   
-  // 判断有没有 开始符号 ^
-  const execRes = /(?<!\[)\^|\$|\{|[\*\+\?]\??/.exec(strOut);
+  // 转义的情况: 仅当前面不是 \ 时匹配
+  const execRes = /(?<!\\)((?<!\[)\^|\$|\{|\*|\+|\?|\*\?|\+\?|\?\?)/.exec(strOut);
   let matchChar = "";
   let matchType = "";
   let splitArr = [];
@@ -519,17 +518,17 @@ function parsePartPeers(arrOut) {
       // 没有子项的，进行平级解析
       const aqArr = parsePartAqs(rItem);
 
-      // todo 这3个判断的顺序 层级？？
-      if (aqArr.length <= 1) {
+      // todo 这3个判断的顺序 层级。。
+      if (["or_part", "group", "range"].includes(rItem.type)) {
+        peerArr.push({
+          ...rItem,
+          children: aqArr
+        });
+      } else if (aqArr.length <= 1) {
         // 可能会匹配到，但是只有一个值 (type 会改变)
         peerArr.push({
           ...rItem,
           ...aqArr[0]
-        });
-      } else if (["or_part", "group", "range"].includes(rItem.type)) {
-        peerArr.push({
-          ...rItem,
-          children: aqArr
         });
       } else {
         peerArr.push(...aqArr);
@@ -550,12 +549,10 @@ function parsePartPeers(arrOut) {
  */
 function parsePartRangeChars(objOut) {
   const {expr: strOut, type: typeOut} = objOut;
-  // 先不考虑转义的情况
   const viewData = []; // 展示用数据
 
-  // 判断有没有，并且拿到是哪个
-  // todo 这个，如果前后有转义符？ 一般不会有，除非写错了
-  const execRes = /(\S)-(\S)/.exec(strOut);
+  // - 连接符，也需要考虑转义
+  const execRes = /\S(?<!\\)-\S/.exec(strOut);
   let matchChar = "";
   let matchType = "";
   let splitArr = [];
@@ -608,18 +605,16 @@ function parsePartRangeChars(objOut) {
  */
 function parsePartChars(objOut) {
   const {expr: strOut, type: typeOut} = objOut;
-  // 先不考虑转义的情况
   const viewData = []; // 展示用数据
 
-  // 判断有没有，并且拿到是哪个
-  const execRes = /(\\d)|(\\D)|(\\w)|(\\W)|(\\s)|(\\S)/.exec(strOut);
+  // 斜杠需要转义
+  const execRes = /\\d|\\D|\\w|\\W|\\s|\\S|\\\||\\\\|\\\(|\\\)|\\\[|\\\]|\\\{|\\\}|\\\*|\\\+|\\\?|\\\.|\\\^|\\\$|\\\<|\\\>|\\-/.exec(strOut);
   let matchChar = "";
   let matchType = "";
   let splitArr = [];
 
   if (execRes) {
     matchChar = execRes[0];
-    // 转义符号 \d \D \w \W \s \S
     matchType = "escape";
     splitArr = splitFromStr(strOut, matchChar)
 
@@ -629,7 +624,7 @@ function parsePartChars(objOut) {
       splitArr[0].split("").map(charSingle => {
         viewData.push({
           expr: charSingle,
-          type: "char",
+          type: typeOut ?? "char",
         });
       });
     }
@@ -652,7 +647,7 @@ function parsePartChars(objOut) {
     strOut.split("").map(charSingle => {
       viewData.push({
         expr: charSingle,
-        type: "char",
+        type: typeOut ?? "char",
       });
     });
   }
@@ -664,7 +659,8 @@ function parsePartChars(objOut) {
  * 解析: 字符集字符、转义符、单字符
  * 
  * -- 字符集字符  A-Z、0-9 等
- * -- 转义符 \w \W \s \S \d \D
+ * -- 转义集合符 (6个)   \w \W \s \S \d \D  
+ * -- 转义字符 (16个)   \| () [] {} *+?. ^$ <>
  * -- 单字符
  */
 function parsePartEscapes(arrOut) {
@@ -690,17 +686,17 @@ function parsePartEscapes(arrOut) {
         singleArr = parsePartChars(rItem);
       }
 
-      // todo 这3个判断的顺序 层级？？
-      if (singleArr.length <= 1) {
+      // todo 这3个判断的顺序 层级。。
+      if (["or_part", "group", "range"].includes(rItem.type)) {
+        escapeArr.push({
+          ...rItem,
+          children: singleArr
+        });
+      } else if (singleArr.length <= 1) {
         // 可能会匹配到，但是只有一个值 (type 会改变)
         escapeArr.push({
           ...rItem,
           ...singleArr[0]
-        });
-      } else if (["or_part", "group", "range"].includes(rItem.type)) {
-        escapeArr.push({
-          ...rItem,
-          children: singleArr
         });
       } else {
         escapeArr.push(...singleArr);
@@ -725,11 +721,9 @@ function mergeLimitRange(outArr) {
       curr.children = mergeLimitRange(curr.children);
     }
 
-    const marchChar = /^[\*\+\?]\??$/.exec(next?.expr)?.[0];
-    const isCurly = /^\{\d+,?\d*?\}$/.exec(next?.expr)?.[0];
-    if (next && (next.expr == marchChar || isCurly)) {
-      curr.suffix = (curr.suffix ?? "") + next.expr;
+    if (next && next.type == "quant") {
       curr.type = curr.type + "_" + next.type;
+      curr.suffix = (curr.suffix ?? "") + next.expr; // 后缀
       curr.explain = curr.explain + ", " + next.explain;
       mergeArr.push(curr);
       i++;
@@ -763,6 +757,30 @@ function splitFromIndex(strWhole, sInd, eInd) {
 }
 
 /**
+ * 匹配逻辑或
+ * 
+ * @param {String} strWhole 要匹配的字符串
+ * @returns 一个匹配结果数组或 null
+ */
+function execLogicalOr(strWhole) {
+  if (!strWhole) return null;
+
+  // 先找到非转义的字符 ｜
+  const reg = /(?<!\\)\|/g;
+  let execRes = null; // 是否有匹配
+  let isPaired = false; // 匹配前的括号是否成对
+
+  do {
+    execRes = reg.exec(strWhole);
+    if (execRes) {
+      isPaired = checkBrackets(strWhole.slice(0, execRes.index), "(");
+    }
+  } while (execRes && !isPaired);
+
+  return isPaired ? execRes : null;
+}
+
+/**
  * 根据所给字符串，分割为 前、字符串、后
  * 
  * @param {String} strWhole 全部字符串
@@ -792,6 +810,7 @@ function splitFromStr(strWhole, strSplit) {
  * @returns 最后分割后的字符串数组
  */
 function splitFromPaired(strWhole, strBracket) {
+  // todo 这里匹配的时候要考虑转义
   const [sInd, eInd] = matchBracket(strWhole, strBracket);
   if(sInd > -1) {
     return [
@@ -802,6 +821,30 @@ function splitFromPaired(strWhole, strBracket) {
   }
 
   return [strWhole];
+}
+
+/**
+ * 找到匹配的成对括号下标
+ */
+function checkBrackets(strWhole, strBracket) {
+  const mapping = {
+    "(": ["(", ")"],
+    "[": ["[", "]"],
+    "{": ["{", "}"],
+  };
+  const [strFront, strEnd] = mapping[strBracket];
+
+  let count = 0;
+
+  for (let i = 0; i < strWhole.length; i++) {
+    const charItem = strWhole[i];
+    if (charItem == strFront) {
+      count++;
+    } else if (charItem == strEnd) {
+      count--;
+    }
+  }
+  return count == 0;
 }
 
 /**

@@ -14,14 +14,18 @@ import ParseResultRender from "./ParseResultRender.vue";
 
 import { mockDataCTree, DESC_TIPS, parseRegular } from "@/utils/regular.js";
 
+const regExp = ref(null);
 // const regExp = ref("13+[a-zA-Z\\w-]BF{0,2}(\\dab\\D*?(a-zA)[RWE]{2,5})344(Rondle)$");
 // const regExp = ref("(sdasdgd)67|ab?(c|de*)+|ac\\w|=\\d");
 // const regExp = ref("st^(m|n)ak|[0-9]?\\d{1,12}|124n*$end");
 // const regExp = ref("[\\dA-Zabdc]{2,5}-(\\d1234+)rondle22");
-const regExp = ref("(a-zA)[RWE]{2,5}");
-// const regExp = ref("[^A-Zabc]");
+// const regExp = ref("(a-zA)[R-WE]{2,5}");
+// const regExp = ref("^([^abc]{3})+$");
 // const regExp = ref("^(us|(US|AM))(en|EN)|(CN|cn)$");
+// const regExp = ref("((c|d)|(ab))|VB");
 // const regExp = ref("^us|(US|AM)");
+// const regExp = ref("F{0,2}");
+// const regExp = ref("^[+]{0,1}(\d+)$");
 
 // 解析结果数据
 const parseRes = ref([]);
@@ -124,7 +128,7 @@ function setExpand(arr, expand) {
     <div class="main">
 
       <div class="regular">
-        <p class="title">正则表达式 (转义符暂不支持，先直接写)</p>
+        <p class="title">正则表达式 (暂不支持中文字符的 \u4e00 类似格式)</p>
         <div class="regular-expression">
           <div class="btn" @click="onParse">Parse</div>
           <div class="prefix">/</div>
@@ -140,13 +144,10 @@ function setExpand(arr, expand) {
         </div>
       </div>
 
-      <div class="error">
+      <!-- <div class="error">
         <p class="title">错误说明 [后面会添加校验]</p>
         <div>【1】关于括号，不成对可能会解析解析错误。</div>
-        <div>【2】关于界限，如 1^Hello、多个位置符号等都不对， 会忽略前后无效内容。</div>
-        <div>【3】关于字符集，如 [a-Z]、-前面的code码大于后面的， 就会成为错误字符集。</div>
-        <div>【4】关于嵌套层级，[] 字符集、{} 量词都是不会嵌套的。</div>
-      </div>
+      </div> -->
 
       <div class="parse">
         <a-tabs v-model:activeKey="activeParseResultKey" type="card">
@@ -168,12 +169,12 @@ function setExpand(arr, expand) {
               >
                 <template #node="{data}">
                   <div class="node-wrap">
-                    <div class="prefix" v-show="data.prefix">{{ data.prefix }}</div>
+                    <div class="prefix" v-show="data.prefix" style="white-space: nowrap;">{{ data.prefix }}</div>
                     <div class="content">
                       <div style="white-space: nowrap;">{{ data.expr }}</div>
-                      <!-- <div style="white-space: nowrap;">{{ data.type }}</div> -->
+                      <div style="white-space: nowrap;">{{ data.type }}</div>
                     </div>
-                    <div class="suffix" v-show="data.suffix">{{ data.suffix }}</div>
+                    <div class="suffix" v-show="data.suffix" style="white-space: nowrap;">{{ data.suffix }}</div>
                   </div>
                 </template>
               </blocks-tree>
