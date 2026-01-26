@@ -162,12 +162,12 @@ export const DESC_TIPS = [
     {expr: "??", explain: '匹配前面的模式零次或一次。(非贪婪模式，尽可能少地匹配)'},
   ] },
   {title: "转义字符集 Escape Ranges", items: [
-    {expr: "\\d", explain: '匹配所有数字；相当于 [0-9]'},
-    {expr: "\\D", explain: '匹配非数字；相当于 [^0-9]'},
+    {expr: "\\d", explain: '匹配所有数字；相当于 [0-9]。'},
+    {expr: "\\D", explain: '匹配非数字；相当于 [^0-9]。'},
     {expr: "\\w", explain: '匹配所有字母、所有数字、下划线；相当于 [A-Za-z0-9_]。'},
-    {expr: "\\W", explain: '匹配非字母、数字、下划线；相当于 [^A-Za-z0-9_]。'},
+    {expr: "\\W", explain: '匹配非(字母、数字、下划线)；相当于 [^A-Za-z0-9_]。'},
     {expr: "\\s", explain: '匹配空白符、换行符。'},
-    {expr: "\\S", explain: '匹配非空白符、非换行符。'},
+    {expr: "\\S", explain: '匹配非(空白符、换行符)。'},
   ] },
   {title: "元字符 Meta Characters", items: [
     {expr: "\\", explain: '转义字符，用于匹配特殊字符本身。'},

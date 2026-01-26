@@ -168,10 +168,11 @@ function setExpand(arr, expand) {
       <div class="meta">
         <p class="title">一些正则相关的网站</p>
         <div class="meta-desc">
+          <div>【1】<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_expressions" target="_blank">Mdn官网 / 正则表达式指南</a></div>
           <div>【1】<a href="https://regex101.com/" target="_blank">正则解析101</a></div>
           <div>【2】<a href="https://regexr.com/8j8iu" target="_blank">正则解析层级化</a></div>
           <div>【2】<a href="https://jex.im/regulex/" target="_blank">正则解析流程化</a></div>
-          <div>【3】<a href="https://cheatography.com/davechild/cheat-sheets/regular-expressions/" target="_blank">正则语法表示例</a></div>
+          <div>【3】<a href="https://cheatography.com/davechild/cheat-sheets/regular-expressions/" target="_blank">正则语法备忘录</a></div>
           <div>【4】<a href="https://juejin.cn/post/6844903487155732494" target="_blank">掘金文章: JS正则表达式完整教程</a></div>
         </div>
       </div>
