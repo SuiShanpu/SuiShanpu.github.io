@@ -6,13 +6,9 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import ApexTree from 'apextree'
-import VueTree from "@ssthouse/vue3-tree-chart";
-import "@ssthouse/vue3-tree-chart/dist/vue3-tree-chart.css";
-
 import ParseResultRender from "./ParseResultRender.vue";
+import { DESC_TIPS, parseRegular } from "@/utils/regular.js";
 
-import { mockDataCTree, DESC_TIPS, parseRegular } from "@/utils/regular.js";
 
 const regExp = ref(null);
 // const regExp = ref("13+[a-zA-Z\\w-]BF{0,2}(\\dab\\D*?(a-zA)[RWE]{2,5})344(Rondle)$");
@@ -38,52 +34,8 @@ const parseResTree = reactive({
 // 解析结果, 不同展示形式
 const activeParseResultKey = ref('tree');
 
-const sampleData= ref({
-  expr: "1",
-  children: [
-    { expr: "2", children: [{ expr: "4" }, { expr: "5" }] },
-    { expr: "3" },
-  ],
-});
-const treeConfig = ref({ nodeWidth: 120, nodeHeight: 80, levelHeight: 200 });
-
-
-var apexTreeData = {
-  "id": "idA",
-  "name": "A",
-  "children": [
-     {
-       "id": "idB",
-       "name": "B",
-       "children": [
-         {
-           "id": "idC",
-           "name": "C"
-         },
-         {
-            "id": "idD",
-            "name": "D"
-         }
-      ]
-     }
-  ]
-}
-
-const options = {
-  contentKey: 'expr',
-   width: 700,
-   height: 700,
-  //  nodeWidth: 120,
-  //  nodeHeight: 80,
-   childrenSpacing: 100,
-   siblingSpacing: 30,
-   direction: 'top',
- };
-var chart = null;
 
 onMounted(() => {
-  // chart = new ApexTree(document.getElementById("parse-apex-tree"), options);
-  // chart.render(apexTreeData);
 });
 
 
@@ -99,11 +51,6 @@ function onParse() {
 
   parseResTree.expr = regExp.value;
   parseResTree.children = setExpand(regRes, true);
-  // chart.render({
-  //   "id": "idA",
-  //   "name": "A",
-  //   "children": regRes
-  // });
 
   console.log("regRes:", regRes);
   console.log("parseResTree:", parseResTree);
@@ -172,7 +119,7 @@ function setExpand(arr, expand) {
                     <div class="prefix" v-show="data.prefix" style="white-space: nowrap;">{{ data.prefix }}</div>
                     <div class="content">
                       <div style="white-space: nowrap;">{{ data.expr }}</div>
-                      <div style="white-space: nowrap;">{{ data.type }}</div>
+                      <!-- <div style="white-space: nowrap;">{{ data.type }}</div> -->
                     </div>
                     <div class="suffix" v-show="data.suffix" style="white-space: nowrap;">{{ data.suffix }}</div>
                   </div>
@@ -180,39 +127,12 @@ function setExpand(arr, expand) {
               </blocks-tree>
             </div>
           </a-tab-pane>
-          <a-tab-pane key="apex-tree" tab="Apex 树状">
-            <div class="parse-result">
-              <div id="parse-apex-tree" style="width: 100%;height:100%;"></div>
-            </div>
-          </a-tab-pane>
-          <a-tab-pane key="chart-tree" tab="Chart树状">
-            <div class="parse-result">
-              <vue-tree
-                style="width: 800px; height: 600px; border: 1px solid gray"
-                :dataset="parseResTree"
-                :config="treeConfig"
-                linkStyle="curve"
-              >
-                <template v-slot:node="{ node, collapsed }">
-                  <!-- <span
-                    class="tree-node"
-                    :style="{
-                      border: collapsed ? '2px solid grey' : '',
-                      borderRadius: '50%',
-                    }"
-                    >{{ node.expr }}</span
-                  > -->
-                  <span style="white-space: nowrap;">{{ node.expr }}</span>
-                </template>
-              </vue-tree>
-            </div>
-          </a-tab-pane>
         </a-tabs>
       </div>
 
       <!-- 符号优先级 -->
       <div class="priority">
-        <p class="title">符号优先级</p>
+        <p class="title">符号优先级（从高到低）</p>
         <div class="priority-list">
           <div class="icon">
             <img src="@/assets/priority-level.png" alt="">
