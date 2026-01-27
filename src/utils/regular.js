@@ -126,10 +126,6 @@ const CHARS_ENUM = {
  * 描述的提示数据
  */
 export const DESC_TIPS = [
-  {title: "字符", items: [
-    {expr: "普通字符", explain: '普通字符按照字面意义进行匹配，例如匹配字母 "a" 将匹配到文本中的 "a" 字符。' },
-    {expr: "特殊字符", explain: '特殊字符具有特殊的含义，例如 \\d 匹配任意数字字符，\\w 匹配任意字母数字字符，. 匹配任意字符（除了换行符）等。' },
-  ] },
   {title: "位置和边界 Anchors", items: [
     {expr: "^", explain: '默认情况下匹配整个字符串的开头，多行模式下匹配每行的开头。'},
     {expr: "$", explain: '默认情况下匹配整个字符串的结尾，多行模式下匹配每行的结尾。'},
@@ -176,9 +172,9 @@ export const DESC_TIPS = [
   ] },
   {title: "特殊字符 Special Characters", items: [
     {expr: "\\n", explain: '匹配换行符。'},
-    {expr: "\\t", explain: '匹配制表符。'},
     {expr: "\\r", explain: '匹配回车符。'},
     {expr: "\\f", explain: '匹配换页符。'},
+    {expr: "\\t", explain: '匹配制表符。'},
     {expr: "\\v", explain: '匹配垂直制表符。'},
   ] },
 ];
@@ -279,7 +275,7 @@ export function parseRegular(regExp) {
 }
 
 
-/****** ----------------------------------  解析各个模块（第三版）------------------------------------ ******/
+/****** ----------------------------------  解析各个模块  ------------------------------------ ******/
 
 /**
  * 层级解析: 逻辑或
@@ -687,7 +683,12 @@ function parsePartEscapes(arrOut) {
       }
 
       // todo 这3个判断的顺序 层级。。
-      if (["or_part", "group", "range"].includes(rItem.type)) {
+      if (["range"].includes(rItem.type)) {
+        escapeArr.push({
+          ...rItem,
+          options: singleArr
+        });
+      } else if (["or_part", "group"].includes(rItem.type)) {
         escapeArr.push({
           ...rItem,
           children: singleArr
@@ -827,24 +828,35 @@ function splitFromPaired(strWhole, strBracket) {
  * 找到匹配的成对括号下标
  */
 function checkBrackets(strWhole, strBracket) {
+  // const mapping = {
+  //   "(": ["(", ")"],
+  //   "[": ["[", "]"],
+  //   "{": ["{", "}"],
+  // };
   const mapping = {
-    "(": ["(", ")"],
-    "[": ["[", "]"],
-    "{": ["{", "}"],
+    "(": [/(?<!\\)\(/g, /(?<!\\)\)/g],
+    "[": [/(?<!\\)\[/g, /(?<!\\)\]/g],
+    "{": [/(?<!\\)\{/g, /(?<!\\)\}/g],
   };
   const [strFront, strEnd] = mapping[strBracket];
 
-  let count = 0;
+  // let count = 0;
+  
+  // for (let i = 0; i < strWhole.length; i++) {
+  //   const charItem = strWhole[i];
+  //   if (charItem == strFront) {
+  //     count++;
+  //   } else if (charItem == strEnd) {
+  //     count--;
+  //   }
+  // }
+  // return count == 0;
 
-  for (let i = 0; i < strWhole.length; i++) {
-    const charItem = strWhole[i];
-    if (charItem == strFront) {
-      count++;
-    } else if (charItem == strEnd) {
-      count--;
-    }
-  }
-  return count == 0;
+  const countFront = strWhole.match(strFront)?.length ?? 0;
+  const countEnd = strWhole.match(strEnd)?.length ?? 0;
+  console.log("strWhole:", strWhole, "countFront:", countFront, "countEnd:", countEnd);
+
+  return countFront == countEnd;
 }
 
 /**
@@ -857,13 +869,15 @@ function matchBracket(strWhole, strBracket) {
     "{": ["{", "}"],
   };
   const [strFront, strEnd] = mapping[strBracket];
+  // todo 将转义的处理掉，只是为了搜索方便
+  const strWholeNew = strWhole.replaceAll("\\" + strFront, "Aa").replaceAll("\\" + strEnd, "Bb");
 
   let count = 0;
   let sInd = -1;
   let eInd = -1;
 
-  for (let i = 0; i < strWhole.length; i++) {
-    const charItem = strWhole[i];
+  for (let i = 0; i < strWholeNew.length; i++) {
+    const charItem = strWholeNew[i];
     if (charItem == strFront) {
       count++;
       if (sInd < 0) {
