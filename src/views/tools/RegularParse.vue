@@ -96,6 +96,7 @@ function setExpand(arr, expand) {
         <div>【1】关于括号，不成对可能会解析解析错误。</div>
       </div> -->
 
+      <!-- 解析结果 -->
       <div class="parse">
         <a-tabs v-model:activeKey="activeParseResultKey" type="card">
           <template #leftExtra>
@@ -115,7 +116,13 @@ function setExpand(arr, expand) {
                 :props="{label: 'expr', expand: 'expand', children: 'children',  key:'expr'}"
               >
                 <template #node="{data}">
-                  <div class="node-wrap">
+                  <div class="range-wrap" v-if="data.type == 'range' && data.options?.length > 0">
+                    <div v-for="option in data.options" class="option">
+                      <span style="white-space: nowrap;">{{ option.expr }}</span>
+                      <!-- <span>{{ option.type }}</span> -->
+                    </div>
+                  </div>
+                  <div class="node-wrap" v-else="data.type == ''">
                     <div class="prefix" v-show="data.prefix" style="white-space: nowrap;">{{ data.prefix }}</div>
                     <div class="content">
                       <div style="white-space: nowrap;">{{ data.expr }}</div>
@@ -194,6 +201,8 @@ function setExpand(arr, expand) {
 </template>
 
 <style lang='less' scoped>
+@bgPrimary: #d9ecdd;
+
 .regular-parse {
   width: 100%;
   height: 100%;
@@ -285,23 +294,32 @@ function setExpand(arr, expand) {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    background-color: #ecf4fe;
+    // background-color: #e0f1fc;
+    background-color: #f5ebeb;
 
     .content {
       font-size: 15px;
       padding: 2px 6px;
-      background-color: #d9ecdd;
+      background-color: @bgPrimary;
     };
 
-    // .prefix {
-    //   padding: 2px 6px;
-    //   color: #C10443;
-    //   font-weight: 500;
-    // }
     .prefix, .suffix {
       padding: 2px 6px;
       color: #5f1fad;
-      font-weight: 500;
+    }
+  }
+
+  .range-wrap {
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+    padding: 6px 6px;
+    background-color: #fef499;
+
+    .option {
+      font-size: 15px;
+      padding: 0px 6px;
+      background-color: @bgPrimary;
     }
   }
 }
