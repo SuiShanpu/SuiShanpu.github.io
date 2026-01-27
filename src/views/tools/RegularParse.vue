@@ -116,7 +116,7 @@ function setExpand(arr, expand) {
                 :props="{label: 'expr', expand: 'expand', children: 'children',  key:'expr'}"
               >
                 <template #node="{data}">
-                  <div class="range-wrap" v-if="data.type == 'range' && data.options?.length > 0">
+                  <div class="range-wrap" v-if="data.type.includes('range') && data.options?.length > 0">
                     <div v-for="option in data.options" class="option">
                       <span style="white-space: nowrap;">{{ option.expr }}</span>
                       <!-- <span>{{ option.type }}</span> -->
