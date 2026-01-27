@@ -433,7 +433,8 @@ function parsePartLevels(objOut) {
  * -- 没有层级，只看前后位置，谁先出现先分割谁
  */
 function parsePartAqs(objOut) {
-  const {expr: strOut, type: typeOut} = objOut;
+  const { prefix, suffix, ...otherOut } = objOut;
+  const { expr: strOut, type: typeOut } = otherOut;
   const viewData = []; // 展示用数据
   
   // 转义的情况: 仅当前面不是 \ 时匹配
@@ -484,9 +485,8 @@ function parsePartAqs(objOut) {
       viewData.push(...otherArr);
     }
   } else {
-    // 返回它自己 (必须解构，否则会嵌套)
-    // todo range 里面有前后缀，还有 type
-    viewData.push({...objOut});
+    // 返回它自己; 有 type等，不能再有前后缀
+    viewData.push({...otherOut});
   }
   
   return viewData;
@@ -514,19 +514,26 @@ function parsePartPeers(arrOut) {
       // 没有子项的，进行平级解析
       const aqArr = parsePartAqs(rItem);
 
-      // todo 这3个判断的顺序 层级。。
-      if (["or_part", "group", "range"].includes(rItem.type)) {
+      if (["range", "group"].includes(rItem.type)) {
+        // 字符集 / 组合
         peerArr.push({
           ...rItem,
           children: aqArr
         });
       } else if (aqArr.length <= 1) {
-        // 可能会匹配到，但是只有一个值 (type 会改变)
+        // 如果只有一个，说明就是它本身 (type 会改变)
         peerArr.push({
           ...rItem,
           ...aqArr[0]
         });
+      } else if (["or_part"].includes(rItem.type)) {
+        // 分割项: 语法树的正常子项
+        peerArr.push({
+          ...rItem,
+          children: aqArr
+        });
       } else {
+        // 平级替换
         peerArr.push(...aqArr);
       }
     }
@@ -623,6 +630,10 @@ function parsePartChars(objOut) {
           type: typeOut ?? "char",
         });
       });
+      // viewData.push({
+      //   expr: splitArr[0],
+      //   type: typeOut ?? "chars",
+      // });
     }
 
     // 当前解析出来的，直接放入
@@ -646,6 +657,10 @@ function parsePartChars(objOut) {
         type: typeOut ?? "char",
       });
     });
+    // viewData.push({
+    //   expr: strOut,
+    //   type: typeOut ?? "chars",
+    // });
   }
 
   return viewData;
@@ -682,24 +697,26 @@ function parsePartEscapes(arrOut) {
         singleArr = parsePartChars(rItem);
       }
 
-      // todo 这3个判断的顺序 层级。。
       if (["range"].includes(rItem.type)) {
+        // 字符集: 样式特殊处理，使用自定义的 options 子项
         escapeArr.push({
           ...rItem,
           options: singleArr
         });
-      } else if (["or_part", "group"].includes(rItem.type)) {
-        escapeArr.push({
-          ...rItem,
-          children: singleArr
-        });
       } else if (singleArr.length <= 1) {
-        // 可能会匹配到，但是只有一个值 (type 会改变)
+        // 如果只有一个，说明就是它本身 (type 会改变)
         escapeArr.push({
           ...rItem,
           ...singleArr[0]
         });
+      } else if (["or_part", "group"].includes(rItem.type)) {
+        // 分割项 / 组合: 语法树的正常子项
+        escapeArr.push({
+          ...rItem,
+          children: singleArr
+        });
       } else {
+        // 平级替换
         escapeArr.push(...singleArr);
       }
     }
