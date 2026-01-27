@@ -611,7 +611,7 @@ function parsePartChars(objOut) {
   const viewData = []; // 展示用数据
 
   // 斜杠需要转义
-  const execRes = /\\d|\\D|\\w|\\W|\\s|\\S|\\\||\\\\|\\\(|\\\)|\\\[|\\\]|\\\{|\\\}|\\\*|\\\+|\\\?|\\\.|\\\^|\\\$|\\\<|\\\>|\\-/.exec(strOut);
+  const execRes = /\\d|\\D|\\w|\\W|\\s|\\S|\\n|\\r|\\f|\\t|\\v|\\\||\\\\|\\\(|\\\)|\\\[|\\\]|\\\{|\\\}|\\\*|\\\+|\\\?|\\\.|\\\^|\\\$|\\\<|\\\>|\\-/.exec(strOut);
   let matchChar = "";
   let matchType = "";
   let splitArr = [];
