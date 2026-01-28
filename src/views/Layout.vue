@@ -30,14 +30,20 @@ setInterval(() => {
 function backHome() {
   router.push("/");
 }
+
+/**
+ * 切换主题色
+ */
+function toggleTheme(colorNew) {
+  document.getElementsByTagName('body')[0].setAttribute("theme", colorNew);
+}
 </script>
 
 <template>
   <div class="sp-layout">
     <nav class="nav">
       <div class="common">
-        <!-- <HomeFilled  @click="backHome"/> -->
-        <img class="logo" src="../assets/shanpu-logo.png" @click="backHome" />
+        <img class="logo" src="../assets/shanpu-logo.png" />
       </div>
       <div class="datetime">
          <div>
@@ -47,6 +53,20 @@ function backHome() {
          <div>
            <span class="time-text">{{ timeNow }}</span>
          </div>
+      </div>
+      <div class="setting-wrap">
+        <HomeFilled class="icon home"  @click="backHome"/>
+        <a-dropdown :trigger="['click']" placement="bottom">
+          <span class="icon">
+            <img class="theme" src="../assets/theme-color.png" />
+          </span>
+          <template #overlay>
+            <div class="theme-list">
+              <span class="box green" @click="toggleTheme('green')"></span>
+              <span class="box gray" @click="toggleTheme('gray')"></span>
+            </div>
+          </template>
+        </a-dropdown>
       </div>
     </nav>
     <div class="content">
@@ -68,8 +88,9 @@ function backHome() {
     height: @navHeight;
     width: 100%;
     // background-color: #4b5168;
-    background-color: #7bcda8;
+    background-color: var(--color-primary);
     padding: 0 var(--size-page-space);
+    border-bottom: 1px solid var(--color-border);
 
     display: flex;
     flex-direction: row;
@@ -79,7 +100,7 @@ function backHome() {
     > div {
       font-size: 18px;
       font-weight: 500;
-      color: #fff;
+      color: var(--color-text);
       font-family: "隶书", "楷书";
 
       display: flex;
@@ -90,6 +111,7 @@ function backHome() {
       width: 44px;
       height: 44px;
       background-color: #fff;
+      border: 1px solid var(--color-border);
       border-radius: 25%;
       cursor: pointer;
     }
@@ -100,7 +122,7 @@ function backHome() {
     overflow-y: auto;
   }
 
-
+  
   .datetime > div {
     display: flex;
     flex-direction: column;
@@ -108,6 +130,62 @@ function backHome() {
   .time-text {
     width: 72px;
     text-align: right;
+  }
+}
+
+// 操作区
+.setting-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+  
+  .icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+  }
+
+  .home {
+    font-size: 20px;
+    color: #333;
+  }
+  .theme {
+    color: #fff;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.theme-list {
+  background-color: #fff;
+  border: 1px solid var(--color-border);
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  .box {
+    margin: 6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 1px solid #fff;
+    cursor: pointer;
+  }
+  .green {
+    background-color: #7bcda8;
+  }
+  .gray {
+    background-color: #d1d9e0;
   }
 }
 </style>
