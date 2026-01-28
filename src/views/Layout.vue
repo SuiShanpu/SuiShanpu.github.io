@@ -44,15 +44,15 @@ function toggleTheme(colorNew) {
     <nav class="nav">
       <div class="common">
         <img class="logo" src="../assets/shanpu-logo.png" />
-      </div>
-      <div class="datetime">
-         <div>
-           <span>{{ dateNow }}({{ weekNow }})</span>
-           <span>{{ lunarFormat }}</span>
-         </div>
-         <div>
-           <span class="time-text">{{ timeNow }}</span>
-         </div>
+        <div class="datetime">
+          <div>
+            <span>{{ dateNow }}({{ weekNow }})</span>
+            <span>{{ lunarFormat }}</span>
+          </div>
+          <div>
+            <span class="time-text">{{ timeNow }}</span>
+          </div>
+        </div>
       </div>
       <div class="setting-wrap">
         <HomeFilled class="icon home"  @click="backHome"/>
@@ -122,11 +122,17 @@ function toggleTheme(colorNew) {
     overflow-y: auto;
   }
 
-  
-  .datetime > div {
+  .datetime {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+
+    > div {
+      display: flex;
+      flex-direction: column;
+    }
   }
+  
   .time-text {
     width: 72px;
     text-align: right;
@@ -186,6 +192,13 @@ function toggleTheme(colorNew) {
   }
   .gray {
     background-color: #d1d9e0;
+  }
+}
+
+/* 小尺寸 */
+@media screen and (max-width: 650px) {
+  .sp-layout .nav > div .logo {
+    display: none;
   }
 }
 </style>

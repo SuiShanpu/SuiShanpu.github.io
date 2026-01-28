@@ -39,7 +39,7 @@
 
   --color-primary: #7bcda8;
   --color-border: #7bcda8;
-  --color-text: #fff;
+  --color-text: #2c3e50;
 }
 
 :root body[theme='dark'] {
@@ -67,7 +67,7 @@
 
   --color-primary: #f6f8fa;
   --color-border: #d1d9e0;
-  --color-text: #333;
+  --color-text: #2c3e50;
 }
 
 
